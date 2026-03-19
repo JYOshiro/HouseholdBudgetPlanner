@@ -1,0 +1,11 @@
+title: Household Budget Planner Documentation
+description: Functional and technical documentation for the Household Budget Planner App
+theme: minima
+markdown: kramdown
+plugins:
+  - jekyll-seo-tag
+
+header_pages:
+  - functional-specification.md
+  - technical-specification.md
+  - api-reference.md
