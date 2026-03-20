@@ -39,7 +39,7 @@ Use Swagger in development mode after running database migration and backend sta
 Use `VITE_API_URL`. For local development, set it to `http://localhost:5000/api`.
 
 ### Where should I start if I am new to the project?
-Start with [index.md](./index.html), then [business-overview.md](./business-overview.html), then [getting-started.md](./getting-started.html).
+Start with [Homepage](./index.html), then [Business Overview](./business-overview.html), then [Getting Started](./getting-started.html).
 
 ## Documentation
 

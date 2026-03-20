@@ -8,6 +8,7 @@ This page describes the current frontend implementation, the target architecture
 
 - [Current State](#current-state)
 - [Target State](#target-state)
+- [Recommended Sequence (Short Form)](#recommended-sequence-short-form)
 - [Implementation Sequence](#implementation-sequence)
 - [Technology and Structure](#technology-and-structure)
 - [Backend Integration](#backend-integration)
@@ -65,6 +66,17 @@ The finished frontend should:
    - Clear error boundaries and retry logic
    - Structured component hierarchy
    - Shared utilities for formatting and validation
+
+## Recommended Sequence (Short Form)
+
+If you need a compact delivery plan, use this order:
+
+1. Configure `VITE_API_URL` correctly
+2. Add shared API DTO types
+3. Build feature service modules
+4. Integrate dashboard and transactions first
+5. Integrate budgets, bills, savings, and household pages
+6. Harden loading, errors, forms, and auth expiry handling
 
 ## Implementation Sequence
 
@@ -309,25 +321,7 @@ Located at `shared/api/httpClient.ts`. Provides:
 - Response parsing and error extraction
 - API error type with status and message
 
-**Usage pattern:**
-
-```typescript
-import { request } from "../../shared/api/httpClient";
-import type { Expense } from "../../shared/types";
-
-export const expenseService = {
-  list: (token: string) =>
-    request<Expense[]>("/expenses", {
-      headers: { Authorization: `Bearer ${token}` },
-    }),
-  create: (token: string, data: CreateExpenseDto) =>
-    request<Expense>("/expenses", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${token}` },
-      body: JSON.stringify(data),
-    }),
-};
-```
+The service implementation pattern is shown above in **Service Layer (Critical)** and should be reused across all features.
 
 ### Integration Rules (Don't Skip These)
 

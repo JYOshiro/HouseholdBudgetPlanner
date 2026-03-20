@@ -119,7 +119,7 @@ Use Swagger to confirm the setup before frontend integration work:
 | Frontend cannot call backend | Set `VITE_API_URL=http://localhost:5000/api` and restart Vite |
 | `401 Unauthorized` in Swagger | The token has expired or was not entered with the `Bearer ` prefix |
 
-## Next Docs
+## Related Pages
 
 - [API Reference](./api-reference.html)
 - [Frontend Guide](./frontend-guide.html)

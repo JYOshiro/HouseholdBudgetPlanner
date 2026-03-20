@@ -7,7 +7,7 @@ This page explains how the system is built, why each decision was made, and what
 ## Quick Links
 
 - [System Overview](#system-overview)
-- [Why This Approach](#why-this-approach)
+- [Why This Architecture](#why-this-architecture)
 - [Component Responsibilities](#component-responsibilities)
 - [Backend Request Lifecycle](#backend-request-lifecycle)
 - [Modules and Data](#modules-and-data)
@@ -25,9 +25,9 @@ Three independently deployable components:
 
 These components communicate via REST over HTTPS. The frontend needs the backend URL. The backend needs database credentials and JWT settings.
 
-**System Context Diagram:**
+> Suggested diagram: System context showing browser, frontend app, API, service layer, and database.
 
-This diagram shows how requests flow through all three layers:
+**System Context Diagram:**
 
 ```
 ┌─────────────────┐       ┌──────────────────┐       ┌──────────────┐
@@ -39,9 +39,9 @@ This diagram shows how requests flow through all three layers:
     UI State                Household Scoping         Relationships
 ```
 
-All communication is synchronous request-response. The backend is stateless—each request carries its own authorization context via JWT claims. The database is the single source of truth for all persistent state.
+All communication is synchronous request-response. The backend is stateless, so each request carries its authorization context through JWT claims. The database is the single source of truth for persistent state.
 
-## Why This Approach
+## Why This Architecture
 
 Five core architectural decisions shaped this design:
 
@@ -60,7 +60,7 @@ Five core architectural decisions shaped this design:
 5. **PostgreSQL with Entity Framework Core**  
    Relational model maps cleanly to C# entities. Migrations handle schema evolution automatically. No impedance mismatch or complex ORM configs.
 
-Together, these decisions keep the codebase maintainable while solving real problems: auth, authorization, data isolation, and consistency. The result is code that's easy to reason about.
+Together, these decisions keep the codebase maintainable while solving real problems: authentication, authorization, data isolation, and consistency.
 
 ## Component Responsibilities
 
@@ -150,6 +150,8 @@ The important part: the household is never taken from the request body. It comes
 
 ### Data Ownership Model
 
+> Suggested diagram: Entity relationship view with Household as ownership root and all financial entities scoped beneath it.
+
 **Entity Relationship Diagram:**
 
 The household is the root of data ownership. All financial entities belong to a household. This is enforced at both database level (foreign keys) and application level (service-layer scoping).
@@ -204,13 +206,13 @@ Key principle: **All queries are scoped to the household.** You cannot load an E
 
 | Layer | Technology | Version |
 |---|---|---|
-| **Frontend** |
+| **Frontend** |  |  |
 | Framework | React | 18.x |
 | Language | TypeScript | 5.x |
 | Build tool | Vite | 5.x |
 | Routing | React Router | 7.x |
 | Styling | Tailwind CSS, Shadcn/UI | — |
-| **Backend** |
+| **Backend** |  |  |
 | Framework | ASP.NET Core | 9.0 |
 | Language | C# | 13 |
 | ORM | Entity Framework Core | 9.0 |
@@ -218,7 +220,7 @@ Key principle: **All queries are scoped to the household.** You cannot load an E
 | Mapping | AutoMapper | — |
 | Auth | JWT / HS256 | — |
 | Password hashing | BCrypt | work factor 12 |
-| **Infrastructure** |
+| **Infrastructure** |  |  |
 | Database | PostgreSQL | 14+ |
 | Logging | ASP.NET Core built-in | — |
 | Error handling | Global middleware | — |
@@ -257,6 +259,8 @@ Global exception middleware catches unhandled errors and returns consistent erro
 - No integration tests for household isolation
 
 See [Security and Privacy](./security-privacy.html) for current controls and gaps.
+
+The architecture is intentionally practical: keep the boundaries clear, keep household scoping centralized, and keep API contracts stable as the product evolves.
 
 ## Related Pages
 

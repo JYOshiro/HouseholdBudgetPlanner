@@ -4,6 +4,8 @@ title: Roadmap
 
 Delivery status, timelines, and priorities from today through production launch.
 
+The current focus is straightforward: finish frontend feature integration first, then lock quality gates and production hardening before broad release.
+
 ## Status Summary
 
 | Phase | Status | Timeline | Next milestone |
@@ -102,6 +104,9 @@ Not committed, but directionally possible:
 - Advanced financial forecasting
 - Audit history and compliance reporting
 
----
+## Related Pages
 
-For details on any area, see [Frontend Guide](./frontend-guide.html) or [Architecture](./architecture.html).
+- [Frontend Guide](./frontend-guide.html)
+- [Architecture](./architecture.html)
+- [Deployment](./deployment.html)
+- [Testing](./testing.html)

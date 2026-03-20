@@ -2,7 +2,7 @@
 title: Business Overview
 ---
 
-Household Budget Planner is a shared budgeting and finance tracking platform for small households. This page explains the product problem, who it serves, what is in scope, and the current state of delivery.
+Household Budget Planner is a shared budgeting and finance tracking platform for small households. This page explains the product problem, who it serves, what is in scope, and where delivery stands today.
 
 ## Quick Links
 
@@ -27,6 +27,8 @@ Household Budget Planner brings those answers into one shared system with househ
 
 ## Who It Is For
 
+The product is designed for small households that want practical budgeting support without enterprise-level complexity.
+
 | Audience | Needs | How the product helps |
 |---|---|---|
 | Couples and families | Shared visibility into spending, bills, and savings | Centralizes household finance activity in one place |
@@ -34,9 +36,9 @@ Household Budget Planner brings those answers into one shared system with househ
 | Household finance managers | Better control over budgets and recurring costs | Adds category budgets, bill tracking, and dashboard summaries |
 | Reviewers and assessors | A clear example of a complete budgeting platform | Demonstrates product scope, domain modelling, and delivery progress |
 
-The product is aimed at small households that want practical budgeting support without complex financial planning features.
-
 ## What the Product Does
+
+At a functional level, the app supports the following capabilities.
 
 | Capability | What it supports |
 |---|---|
@@ -50,6 +52,8 @@ The product is aimed at small households that want practical budgeting support w
 
 ## Product Value
 
+These are the main outcomes the product is built to deliver.
+
 | Value area | Why it matters |
 |---|---|
 | Shared visibility | Everyone in the household sees the same financial picture |
@@ -59,6 +63,8 @@ The product is aimed at small households that want practical budgeting support w
 | Technical completeness | The project demonstrates a realistic full-stack product with meaningful domain complexity |
 
 ## Scope Summary
+
+Scope is intentionally focused to keep delivery practical and testable.
 
 ### In scope for the current baseline
 
@@ -87,6 +93,8 @@ The product is aimed at small households that want practical budgeting support w
 | Frontend authentication | Complete | Login, registration, token persistence, and protected routes exist |
 | Frontend feature wiring | In progress | Feature pages exist, but API integration and refinement are still needed |
 | Production hardening | Planned | Expanded tests, release automation, and operational checks remain |
+
+In short: core backend capability is complete, while frontend feature integration and release hardening are the active delivery focus.
 
 ## User Journeys
 

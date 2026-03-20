@@ -9,7 +9,7 @@ For exact request/response schemas, use [Swagger UI](http://localhost:5000/swagg
 ## Quick Links
 
 - [Base URLs](#base-urls)
-- [Typical Integration Flow](#typical-integration-flow)
+- [Typical First Integration Flow](#typical-first-integration-flow)
 - [Authentication](#authentication)
 - [Status Codes](#status-codes)
 - [Endpoint Reference](#endpoint-reference)
@@ -25,13 +25,26 @@ For exact request/response schemas, use [Swagger UI](http://localhost:5000/swagg
 
 > **Frontend integration note:** The frontend reads `VITE_API_URL` and falls back to `https://localhost:5001/api`. For local development against the backend at `http://localhost:5000`, set `VITE_API_URL=http://localhost:5000/api` in **frontend/.env.local**.
 
-## Typical Integration Flow
+## Typical First Integration Flow
 
-**Start here if you're new to the API.** Follow these steps to verify your setup and understand how the system works together.
+**Start here if you're new to the API.** This is the fastest path to a working integration.
 
 All requests assume you've successfully run the backend and database migrations (see [Getting Started](./getting-started.html)).
 
-### Steps 1–6: Complete a basic workflow
+### Steps 1-4: First working integration
+
+1. **Register or log in**
+  - `POST /api/auth/register` for first-time users
+  - `POST /api/auth/login` for returning users
+2. **Store the token**
+  - Save the returned JWT token in app state or local storage
+3. **Validate session with `/api/auth/me`**
+  - Call `GET /api/auth/me` with `Authorization: Bearer <token>`
+4. **Call dashboard and feature endpoints**
+  - Start with `GET /api/dashboard/summary`
+  - Then call feature routes like `/api/expenses`, `/api/income`, `/api/budgets`
+
+### Expanded workflow example
 
 **1. Register a household:**
 ```http

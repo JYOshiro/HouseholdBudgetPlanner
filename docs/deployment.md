@@ -102,7 +102,7 @@ VITE_API_URL=https://api.example.com/api
 2. Create an application user with full permissions on the database
 3. Test the connection string: `psql "Host=... User=... Password=... Database=..."`
 
-Nothing else to do; migrations will create tables.
+Outcome: once this is complete, the backend can apply migrations and start cleanly.
 
 ### Step 2: Configure Backend Secrets
 
@@ -114,6 +114,8 @@ Set these in your hosting environment:
 - `JwtSettings__Audience`
 - `JwtSettings__ExpirationMinutes`
 - `Cors__AllowedOrigins__0` (and `_1`, `_2` if multiple origins)
+
+Outcome: the backend has everything required to issue tokens and connect to the database.
 
 ### Step 3: Apply Database Migrations
 
@@ -128,7 +130,7 @@ export ConnectionStrings__DefaultConnection="Host=...;Port=5432;Database=budget;
 dotnet ef database update
 ```
 
-This creates tables and seeds default categories. Wait for `Done.` message.
+This creates tables and seeds default categories. Wait for `Done.` message before proceeding.
 
 ### Step 4: Build and Deploy Backend
 
@@ -147,6 +149,8 @@ dotnet HouseholdBudgetApi.dll
 
 **Environment variables:** Set the secrets from Step 2 in your hosting environment.
 
+Outcome: API is deployed and ready for verification.
+
 ### Step 5: Verify Backend Before Release
 
 Before deploying the frontend, confirm the backend works:
@@ -157,7 +161,7 @@ Before deploying the frontend, confirm the backend works:
 4. Test auth: Call `POST /api/auth/register` and `POST /api/auth/login`
 5. Verify token use: Call `GET /api/auth/me` with the token
 
-If anything fails, don't proceed to the frontend.
+If anything fails, stop here and fix it before deploying the frontend.
 
 ### Step 6: Build Frontend
 
@@ -171,7 +175,7 @@ npm install
 npm run build
 ```
 
-Output is in `frontend/dist/`. This is 100% static—no runtime required.
+Output is in `frontend/dist/`. This is static output, so no runtime process is required.
 
 ### Step 7: Deploy Frontend
 
@@ -260,9 +264,11 @@ Run through this before announcing the deployment:
 | `401 Unauthorized` on every request | JWT secret doesn't match, token expired | Verify secret is same on all instances, refresh token |
 | Page refresh logs out the user | Token not in localStorage | Check browser storage, verify auth context recovery |
 | Migrations fail at startup | Wrong connection string, user permissions | Test connection string manually, grant permissions |
-| Swagger UI is blank | ASPNETCORE_ENVIRONMENT not set to Development | Set `ASPNETCORE_ENVIRONMENT=Production` if you want Swagger restricted |
+| Swagger UI is blank | ASPNETCORE_ENVIRONMENT not set to Development | Set `ASPNETCORE_ENVIRONMENT=Development` for local Swagger access |
 
 ## Next Steps
+
+If this is your first deployment, do one full dry run in staging before announcing production.
 
 1. Set target hosting platforms for frontend and backend
 2. Create environment variable documentation (for your team)

@@ -4,7 +4,7 @@ title: Household Budget Planner
 
 Shared household budgeting and finance tracking for income, expenses, bills, budgets, and savings goals.
 
-Instead of juggling spreadsheets, notes, and multiple banking apps, small households now have a single shared hub for managing day-to-day finances. Household Budget Planner gives you household-wide visibility into income, expenses, budgets, and savings—with clear access controls and reliable isolation between households.
+Household Budget Planner gives small households one place to manage day-to-day finances. Instead of splitting records across spreadsheets, notes, and banking apps, you can track income, expenses, budgets, bills, and savings in a single shared workflow.
 
 ## Get Started
 
@@ -53,6 +53,8 @@ The application shell is built with routing and authentication ready:
 
 ## Documentation by Role
 
+Use this map to jump to the page that matches your role and goal.
+
 | Page | Audience | You'll learn |
 |---|---|---|
 | [Business Overview](./business-overview.html) | Stakeholders, assessors | Product goals, scope, and delivery status in simple terms |
@@ -70,6 +72,8 @@ The application shell is built with routing and authentication ready:
 
 ## Quick Links
 
+These are the most-used project entry points during local development.
+
 | Resource | What it is | Local URL or location |
 |---|---|---|
 | **Repository** | GitHub source code | [github.com/JYOshiro/HouseholdBudgetPlanner](https://github.com/JYOshiro/HouseholdBudgetPlanner) |
@@ -78,8 +82,11 @@ The application shell is built with routing and authentication ready:
 | **Swagger UI** | API discovery and testing | `http://localhost:5000/swagger` |
 | **Tech stack** | Technologies used | React 18, TypeScript, Vite, ASP.NET Core 9, PostgreSQL |
 
----
+## Related Pages
 
-**Next step:** See [Getting Started](./getting-started.html) to set up your local environment, or [Business Overview](./business-overview.html) for product context.
+- [Getting Started](./getting-started.html)
+- [Business Overview](./business-overview.html)
+- [Roadmap](./roadmap.html)
+- [Architecture](./architecture.html)
 
 Last updated: March 2026

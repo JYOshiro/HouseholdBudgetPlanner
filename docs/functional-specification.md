@@ -15,6 +15,7 @@ This page defines functional scope, core requirements, business rules, and accep
 - [Acceptance Criteria](#acceptance-criteria)
 
 ## Objective
+
 Provide households with a centralized platform to track income, expenses, budgets, bills, and savings goals while maintaining clear household-level access controls and usable financial summaries.
 
 ## Scope
