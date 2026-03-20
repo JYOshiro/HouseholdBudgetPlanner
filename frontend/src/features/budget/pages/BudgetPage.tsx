@@ -25,7 +25,8 @@ export default function BudgetPage() {
   const now = useMemo(() => new Date(), []);
   const year = now.getFullYear();
   const month = now.getMonth() + 1;
-  const firstDayOfMonthIso = useMemo(() => new Date(year, month - 1, 1).toISOString(), [month, year]);
+  // Use UTC month start to avoid timezone offsets pushing the date into the previous month.
+  const firstDayOfMonthIso = useMemo(() => new Date(Date.UTC(year, month - 1, 1)).toISOString(), [month, year]);
 
   const budgetsByCategoryId = useMemo(
     () => new Map(budgets.map((budget) => [budget.categoryId, budget])),
