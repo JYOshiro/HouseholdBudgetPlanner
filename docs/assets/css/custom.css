@@ -530,7 +530,37 @@ a:hover {
 }
 
 .site-footer {
-  display: none;
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.footer-minimal {
+  padding: 18px 0 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.95rem;
+}
+
+.footer-note,
+.footer-links {
+  margin: 0;
+}
+
+.footer-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.footer-links a {
+  text-decoration: none;
+}
+
+.footer-links a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 860px) {
@@ -555,5 +585,10 @@ a:hover {
 
   .hero {
     padding: 18px;
+  }
+
+  .footer-minimal {
+    flex-direction: column;
+    align-items: flex-start;
   }
 }
