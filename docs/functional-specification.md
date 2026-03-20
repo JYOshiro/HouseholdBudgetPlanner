@@ -1,4 +1,6 @@
-# Functional Specification
+---
+title: Functional Specification
+---
 
 This page defines functional scope, core requirements, business rules, and acceptance criteria for the Household Budget Planner baseline.
 

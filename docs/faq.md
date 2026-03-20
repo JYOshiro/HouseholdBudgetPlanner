@@ -1,4 +1,6 @@
-# FAQ
+---
+title: FAQ
+---
 
 This page answers common project questions for stakeholders, reviewers, and developers.
 

@@ -1,3 +1,7 @@
+---
+title: Household Budget Planner
+---
+
 Shared household budgeting and finance tracking for income, expenses, bills, budgets, and savings goals.
 
 This documentation is the main entry point for the project. It is designed for stakeholders, developers, and reviewers who need a clear view of what the app does, what has already been built, and where to look next.

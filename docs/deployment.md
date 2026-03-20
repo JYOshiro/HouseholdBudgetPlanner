@@ -1,4 +1,6 @@
-# Deployment
+---
+title: Deployment
+---
 
 This page covers the practical deployment model for the frontend, backend, and database. It focuses on what needs to be configured, what order to deploy in, and what to verify before release.
 

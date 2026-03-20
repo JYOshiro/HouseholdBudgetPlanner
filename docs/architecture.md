@@ -1,4 +1,6 @@
-# Architecture
+---
+title: Architecture
+---
 
 This page explains how the system is put together, why the main design decisions were made, and what each component is responsible for. It is intended to be practical reference material rather than a formal architecture report.
 

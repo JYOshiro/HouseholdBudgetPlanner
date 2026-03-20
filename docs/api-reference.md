@@ -1,4 +1,6 @@
-# API Reference
+---
+title: API Reference
+---
 
 This page documents the current backend API in a format that is quick to scan and practical to use during development. For exact schemas, use Swagger alongside this page.
 

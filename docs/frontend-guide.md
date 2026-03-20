@@ -1,4 +1,6 @@
-# Frontend Guide
+---
+title: Frontend Guide
+---
 
 This page describes the current frontend implementation, the intended direction for the app structure, and the main integration priorities. It is written for developers who need to understand what already exists and what still needs work.
 

@@ -1,4 +1,6 @@
-# Business Overview
+---
+title: Business Overview
+---
 
 Household Budget Planner is a shared budgeting and finance tracking platform for small households. This page explains the product problem, who it serves, what is in scope, and the current state of delivery.
 

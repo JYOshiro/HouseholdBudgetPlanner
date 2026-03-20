@@ -1,4 +1,6 @@
-# Security and Privacy
+---
+title: Security and Privacy
+---
 
 This page describes the current security baseline for authentication, authorization, data isolation, and operational safeguards in Household Budget Planner.
 

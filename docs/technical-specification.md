@@ -1,4 +1,6 @@
-# Technical Specification
+---
+title: Technical Specification
+---
 
 This page documents the current technical baseline, architecture constraints, runtime configuration, and delivery risks for engineering and review teams.
 

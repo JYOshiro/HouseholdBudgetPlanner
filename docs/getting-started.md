@@ -1,4 +1,6 @@
-# Getting Started
+---
+title: Getting Started
+---
 
 Get the project running locally with a working database, backend API, and frontend client. This guide is optimized for first-time setup and quick verification.
 
