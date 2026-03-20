@@ -4,71 +4,82 @@ title: Household Budget Planner
 
 Shared household budgeting and finance tracking for income, expenses, bills, budgets, and savings goals.
 
-Household Budget Planner is a shared finance platform for small households such as couples, families, or flatmates. It gives one household a single place to manage day-to-day financial activity instead of splitting information across spreadsheets, notes, and banking apps.
+Instead of juggling spreadsheets, notes, and multiple banking apps, small households now have a single shared hub for managing day-to-day finances. Household Budget Planner gives you household-wide visibility into income, expenses, budgets, and savings—with clear access controls and reliable isolation between households.
 
-## Quick Start
+## Get Started
+
+Find what you need based on your role:
 
 | I want to... | Start with |
 |---|---|
-| Understand the product | [Business Overview](./business-overview.html) |
-| Set up and run locally | [Getting Started](./getting-started.html) |
-| Build the frontend | [Frontend Guide](./frontend-guide.html) |
-| Integrate the API | [API Reference](./api-reference.html) |
-| Understand the design | [Architecture](./architecture.html) |
-| Check delivery status | [Roadmap](./roadmap.html) |
-| Review security | [Security and Privacy](./security-privacy.html) |
+| Understand the product and scope | [Business Overview](./business-overview.html) |
+| Set up and run everything locally | [Getting Started](./getting-started.html) |
+| Build and integrate the frontend | [Frontend Guide](./frontend-guide.html) |
+| Use or integrate the API | [API Reference](./api-reference.html) |
+| Review system design | [Architecture](./architecture.html) |
+| Check what's done and what's next | [Roadmap](./roadmap.html) |
+| Review security controls | [Security and Privacy](./security-privacy.html) |
 
-## Project Status
+## Current Status
 
-Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned. See the [Roadmap](./roadmap.html) for details.
+Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned. See the [Roadmap](./roadmap.html) for the full timeline and priorities.
 
-| Area | Status |
+| Component | Status |
 |---|---|
-| Backend API | ✓ Complete |
-| Database | ✓ Complete |
-| Authentication | ✓ Complete |
-| Frontend shell | ⏳ In progress |
-| Frontend features | ⏳ In progress |
-| Production readiness | 🔜 Planned |
+| **Backend API & database** | ✓ Complete and tested |
+| **Authentication & authorization** | ✓ Complete |
+| **Frontend shell & routing** | ⏳ In progress |
+| **Frontend feature integration** | ⏳ In progress |
+| **Production readiness** | 🔜 Planned |
 
 ## What's Implemented
 
-**Backend:** All core finance modules are ready to use.
-- household-scoped authentication and authorization
-- expense, income, budget, and bill management
-- savings goals with contribution tracking
-- dashboard summaries by period
+### Backend (Ready for integration)
 
-**Frontend:** The app shell and auth flow are ready.
-- landing page, login, and registration pages
-- auth context with token persistence
-- protected routing and feature page scaffolds
-- responsive layout and component library
+All core financial modules are fully functional and tested through Swagger:
+- **auth:** User registration, login, JWT token generation
+- **finance modules:** Expenses, income, budgets, bills, savings goals, contributions
+- **queries:** Dashboard summary, category lookup, household isolation enforcement
+- **persistence:** PostgreSQL schema, migrations, audit fields
 
-## Documentation
+### Frontend (Scaffold + auth flow)
 
-| Page | For | Purpose |
+The application shell is built with routing and authentication ready:
+- **pages:** Landing page, login, registration, protected routes for features
+- **auth:** Registration flow, login flow, token persistence in browser storage
+- **layout:** Responsive design, navigation structure, component library
+- **routing:** React Router with protected route guards
+- **integration:** Ready for API binding to feature pages
+
+## Documentation by Role
+
+| Page | Audience | You'll learn |
 |---|---|---|
-| [Business Overview](./business-overview.html) | Stakeholders, assessors | Product goals, scope, and delivery state |
-| [Getting Started](./getting-started.html) | Developers | Local setup and first-run verification |
-| [Architecture](./architecture.html) | Technical reviewers | Design decisions and component roles |
-| [API Reference](./api-reference.html) | Backend integrators | Endpoints, auth, examples, and status codes |
-| [Frontend Guide](./frontend-guide.html) | Frontend developers | Structure, auth flow, and integration roadmap |
-| [Deployment](./deployment.html) | DevOps, reviewers | Configuration, deployment sequence, and release checklist |
-| [Roadmap](./roadmap.html) | Project stakeholders | Complete, in-progress, and planned work |
-| [Security and Privacy](./security-privacy.html) | Security reviewers | Auth model, isolation, and controls |
-| [Testing](./testing.html) | QA, reviewers | Test posture and quality gates |
+| [Business Overview](./business-overview.html) | Stakeholders, assessors | Product goals, scope, and delivery status in simple terms |
+| [Getting Started](./getting-started.html) | Developers | How to set up everything and run it locally |
+| [Architecture](./architecture.html) | Technical reviewers | Design decisions, component relationships, and system flow |
+| [API Reference](./api-reference.html) | Backend integrators, frontend developers | Endpoints, authentication, example requests/responses, and status codes |
+| [Frontend Guide](./frontend-guide.html) | Frontend developers | Current structure, integration roadmap, and how to connect to the API |
+| [Deployment](./deployment.html) | DevOps, platform engineers | Configuration steps, environment variables, release checklist |
+| [Roadmap](./roadmap.html) | Project leadership | What's complete, in-progress, and planned for future phases |
+| [Security and Privacy](./security-privacy.html) | Security reviewers | Authentication model, household isolation, and current controls |
+| [Testing](./testing.html) | QA, platform reviewers | Test strategy, coverage, and quality approach |
+| [Technical Specification](./technical-specification.html) | Technical leads | Technology choices, component responsibilities, and risks |
+| [Functional Specification](./functional-specification.html) | Business analysts, QA | Detailed requirements, business rules, and acceptance criteria |
+| [FAQ](./faq.html) | Everyone | Common questions about setup, status, and next steps |
 
-## Key Resources
+## Quick Links
 
-| Resource | URL |
-|---|---|
-| Repository | [github.com/JYOshiro/HouseholdBudgetPlanner](https://github.com/JYOshiro/HouseholdBudgetPlanner) |
-| Frontend dev | `http://localhost:5173` |
-| Backend API | `http://localhost:5000/api` |
-| Swagger UI | `http://localhost:5000/swagger` |
-| Tech stack | React 18, TypeScript, Vite, ASP.NET Core 9, PostgreSQL |
+| Resource | What it is | Local URL or location |
+|---|---|---|
+| **Repository** | GitHub source code | [github.com/JYOshiro/HouseholdBudgetPlanner](https://github.com/JYOshiro/HouseholdBudgetPlanner) |
+| **Frontend app** | React SPA (development) | `http://localhost:5173` |
+| **Backend API** | ASP.NET Core Web API | `http://localhost:5000/api` |
+| **Swagger UI** | API discovery and testing | `http://localhost:5000/swagger` |
+| **Tech stack** | Technologies used | React 18, TypeScript, Vite, ASP.NET Core 9, PostgreSQL |
 
 ---
+
+**Next step:** See [Getting Started](./getting-started.html) to set up your local environment, or [Business Overview](./business-overview.html) for product context.
 
 Last updated: March 2026

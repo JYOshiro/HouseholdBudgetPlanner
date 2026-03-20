@@ -68,100 +68,195 @@ The finished frontend should:
 
 ## Implementation Sequence
 
-Recommend building features in this order to unblock dependencies:
+**This is your delivery roadmap.** Complete phases sequentially to unblock dependencies and maintain momentum.
 
-### Phase 1: API integration foundation (immediate blockers)
+### Phase 1: Foundation (Day 1)
 
-1. **Fix `VITE_API_URL` configuration**
-   - Update `frontend/.env.local` and `.env.production`
-   - Align with backend documentation
-   - Prevents silent integration failures
+1. **Fix API configuration**
+   - Set `VITE_API_URL=http://localhost:5000/api` in `frontend/.env.local`
+   - The default `https://localhost:5001/api` is wrong. Silent API failures happen if this is missed.
+   - This must be done before any integration work.
 
-2. **Build shared type definitions**
-   - Add TypeScript interfaces for all backend DTOs under `shared/types/api.ts`
-   - Mirror the backend DTOs exactly (source of truth)
-   - Makes API consumption type-safe
+2. **Create shared type definitions**
+   - Add TypeScript interfaces for all backend DTOs in `shared/types/api.ts`
+   - Copy from backend: `User`, `Household`, `Expense`, `Income`, `Budget`, `Bill`, `SavingsGoal`, `GoalContribution`, `Category`, `DashboardSummary`
+   - These become the contract. Keep them in sync with backend—mismatch causes bugs at runtime.
 
-3. **Build API service layer**
-   - One service module per domain (`expenseService.ts`, `budgetService.ts`, etc.)
-   - Export simple functions that wrap fetch calls
-   - Handle errors consistently (401 → logout, 400 → validation feedback, 5xx → retry)
+3. **Build API service modules**
+   - One module per domain: `services/authService.ts`, `services/expenseService.ts`, `services/dashboardService.ts`, etc.
+   - Each service exports simple, named functions
+   - All errors are routed through consistent handlers (401 → logout, 4xx → form feedback, 5xx → retry)
 
-### Phase 2: Core workflows (dependencies manageable)
+**Done when:** Dashboard loads real data for the current month.
 
-4. **Dashboard page**
-   - Fetch `/api/dashboard/summary` for current month
-   - Display totals, recent transactions, upcoming bills, savings progress
-   - Add month/year selector
+### Phase 2: Core Workflows (Days 2–4)
 
-5. **Transactions page**
-   - List expenses and income together
-   - Create/edit/delete flows
-   - Filter by category if time permits
-   - This unblocks understanding the main financial story
+4. **Dashboard page** (highest priority)
+   - Fetch `GET /api/dashboard/summary?year=X&month=Y`
+   - Display income, expenses, net, upcoming bills, savings progress
+   - Add month/year selector for browsing past months
+   - Foundation for understanding the financial picture
 
-6. **Bills page**
-   - List bills with status
-   - Support "mark as paid" action
-   - Quick win: simpler than transactions
+5. **Transactions page** (complex but critical)
+   - List all expenses and income in a single view
+   - Create new transactions with category selector
+   - Edit and delete existing transactions
+   - Filter by date range and category (nice to have)
+   - This is 70% of user workflows
 
-### Phase 3: Secondary features (can happen in parallel)
+6. **Bills page** (quick win)
+   - List bills with due date and payment status
+   - Single action: "Mark as paid" button
+   - Optional: show upcoming (unpaid) bills only
+   - Simpler than transactions; boost confidence
+
+**Done when:** User can enter transactions, update bills, and see summaries.
+
+### Phase 3: Secondary Features (Days 5–6)
 
 7. **Budget page**
-   - List monthly budgets
-   - Create/edit budgets
-   - Show actual vs budgeted comparison
+   - Show monthly budgets by category
+   - Create new budget (month + category + limit)
+   - Display actual vs budgeted spending
+   - Optional: visual progress bars
 
 8. **Savings page**
-   - List goals with progress bars
+   - List goals with current progress (contributions ÷ target)
    - Create goals
-   - Add contributions
+   - Add contributions to goals
+   - Optional: show progress as percentage bars
 
 9. **Household page**
    - Display household name and members
-   - (Multi-user edit not in baseline)
+   - (Multi-user management not required for baseline)
 
-### Phase 4: UX hardening and polish
+**Done when:** All core financial workflows are exposed in the UI.
 
-10. **Consistent loading, error, empty states**
-    - Add a shared `<Loading />` component
-    - Add shared error fallback UI
-    - Add "no data" guidance on each page
+### Phase 4: Hardening (Day 7+)
 
-11. **Form validation**
-    - Client-side validation before submit
-    - Server error feedback in forms
-    - Prevent duplicate submissions
+10. **Consistent UX states**
+    - Add `<LoadingSpinner />` component, use on all async operations
+    - Add error boundary; show user-friendly errors
+    - Add "no data" messaging on empty states
 
-12. **Auth hardening**
-    - Graceful token expiry (redirect to login with message)
-    - Automatic logout on 401
-    - Retry logic for transient failures
+11. **Form validation and feedback**
+    - Validate fields before submit
+    - Show server errors inline in forms
+    - Disable submit during load; prevent double-clicks
 
-## Module Recommendations
+12. **Auth robustness**
+    - Detect token expiry (401 response)
+    - Redirect to login with "session expired" message
+    - Add retry logic for transient 5xx errors
+    - Handle network failures gracefully
 
-Organize feature modules like this:
+**Done when:** Every page looks finished, loads smoothly, and recovers from errors.
+
+## Module Architecture
+
+This is how to organize code so it scales and stays maintainable.
+
+### Feature Module Structure
+
+Each feature should be self-contained:
 
 ```
-features/
-├── dashboard/
-│   ├── pages/DashboardPage.tsx
-│   ├── components/SummaryCard.tsx
-│   ├── services/dashboardService.ts
-│   ├── types/index.ts
-│   └── hooks/useDashboard.ts
-├── transactions/
-│   ├── pages/TransactionsPage.tsx
-│   ├── components/TransactionList.tsx
-│   ├── components/TransactionForm.tsx
-│   ├── services/expenseService.ts
-│   ├── services/incomeService.ts
-│   ├── types/index.ts
-│   └── hooks/useTransactions.ts
-├── [budget/, bills/, savings/, etc. — same structure]
+features/dashboard/
+├── pages/
+│   └── DashboardPage.tsx          # Route target; fetches and renders
+├── components/
+│   ├── SummaryCard.tsx            # Reusable pieces
+│   ├── TransactionList.tsx
+│   └── SavingsProgress.tsx
+├── services/
+│   └── dashboardService.ts        # API calls only
+├── hooks/
+│   └── useDashboard.ts            # Fetch logic and state
+├── types/
+│   └── index.ts                   # Feature-specific types
+└── constants.ts                   # Feature constants (labels, etc.)
 ```
 
-Each feature module is self-contained. Services call the shared HTTP client. Components don't call fetch directly.
+Apply the same pattern to all features: transactions, budget, bills, savings, etc.
+
+### Service Layer (Critical)
+
+**Services are the API boundary:**
+
+```typescript
+// services/expenseService.ts
+import { request } from "../../shared/api/httpClient";
+import type { Expense, CreateExpenseDto } from "../../shared/types";
+
+export const expenseService = {
+  list: (token: string) =>
+    request<Expense[]>("/expenses", {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  
+  create: (token: string, data: CreateExpenseDto) =>
+    request<Expense>("/expenses", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    }),
+  
+  delete: (token: string, id: number) =>
+    request<void>(`/expenses/${id}`, {
+      method: "DELETE",
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+};
+```
+
+**Never call fetch directly from components.** All API communication flows through services.
+
+### Hook Layer (State + Logic)
+
+Encapsulate fetch logic and state management:
+
+```typescript
+// hooks/useDashboard.ts
+import { useEffect, useState } from "react";
+import { dashboardService } from "../services/dashboardService";
+import { useAuth } from "../../auth/hooks/useAuth";
+
+export function useDashboard(year: number, month: number) {
+  const { token } = useAuth();
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    dashboardService
+      .summary(token, year, month)
+      .then(setData)
+      .catch(setError)
+      .finally(() => setLoading(false));
+  }, [token, year, month]);
+
+  return { data, loading, error };
+}
+```
+
+Components use the hook and focus only on rendering:
+
+```typescript
+// pages/DashboardPage.tsx
+import { useDashboard } from "../hooks/useDashboard";
+
+export function DashboardPage() {
+  const [year, setYear] = useState(2026);
+  const [month, setMonth] = useState(3);
+  const { data, loading, error } = useDashboard(year, month);
+
+  if (loading) return <LoadingSpinner />;
+  if (error) return <ErrorMessage error={error} />;
+  return <SummaryCard data={data} />;
+}
+```
+
+This keeps concerns separated and makes testing easier.
 
 ## Technology and Structure
 
@@ -234,13 +329,39 @@ export const expenseService = {
 };
 ```
 
-### Important Rules
+### Integration Rules (Don't Skip These)
 
-1. **Never send `householdId` from the frontend.** It comes from JWT claims on the backend.
-2. **Don't import DTOs from backend.** Mirror them as TypeScript interfaces in `shared/types/api.ts`.
-3. **All API calls go through feature services,** not directly in components.
-4. **Handle 401 specially:** Log out the user and redirect to login.
-5. **Mirror backend DTO changes immediately** to avoid contract drift.
+1. **Never send `householdId` in request bodies**
+   - The backend derives household from JWT claims
+   - If you send it, it's ignored (wasted bandwidth)
+   - If you try to override it, the request fails silently
+   - **Result:** Always comes from the token
+
+2. **Don't import backend DTOs; mirror them in TypeScript**
+   - Create types in `frontend/shared/types/api.ts`
+   - Keep them in sync with backend responses
+   - Use `diff` tools or API test to catch drift
+   - **Result:** Type-safe async calls
+
+3. **Route all API calls through feature services**
+   - No `fetch` in components
+   - No `fetch` in hooks (call services instead)
+   - One service per domain (auth, dashboard, expenses, etc.)
+   - **Result:** Centralized, testable API layer
+
+4. **Handle 401 responses specially**
+   - 401 = token expired or invalid
+   - Log out the user immediately
+   - Redirect to login page
+   - Show "session expired" message
+   - **Result:** Users know why they're logged out
+
+5. **Align `VITE_API_URL` with actual backend location**
+   - Local: `http://localhost:5000/api`
+   - Staging: `https://staging-api.example.com/api`
+   - Production: `https://api.example.com/api`
+   - Mismatch causes silent failures; use Swagger to debug
+   - **Result:** API calls reach the right server
 
 ### Environment Configuration
 

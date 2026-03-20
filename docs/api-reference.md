@@ -27,7 +27,11 @@ For exact request/response schemas, use [Swagger UI](http://localhost:5000/swagg
 
 ## Typical Integration Flow
 
-New integrators should follow this sequence:
+**Start here if you're new to the API.** Follow these steps to verify your setup and understand how the system works together.
+
+All requests assume you've successfully run the backend and database migrations (see [Getting Started](./getting-started.html)).
+
+### Steps 1–6: Complete a basic workflow
 
 **1. Register a household:**
 ```http
@@ -43,7 +47,7 @@ Content-Type: application/json
 }
 ```
 
-Response includes a `token`. Store it.
+Response includes a `token`. Store it in your application or browser localStorage.
 
 **2. Log in (for future sessions):**
 ```http
@@ -64,13 +68,15 @@ GET /api/auth/me
 Authorization: Bearer <token>
 ```
 
-This returns your user profile and confirms the token works.
+This returns your user profile and confirms the token works. All subsequent requests must include this header.
 
 **4. Fetch categories (provided by default):**
 ```http
 GET /api/categories
 Authorization: Bearer <token>
 ```
+
+You'll receive system categories like "Groceries", "Transportation", "Utilities", etc. Use their IDs when creating expenses.
 
 **5. Create an expense:**
 ```http
@@ -93,7 +99,16 @@ GET /api/dashboard/summary?year=2026&month=3
 Authorization: Bearer <token>
 ```
 
-This is the foundation. All other endpoints follow the same pattern: token in `Authorization` header, household scope is automatic.
+This returns aggregated totals: income, expenses, savings progress, and budget summaries for the month.
+
+### What you've just learned
+
+- Auth tokens are **required** for all financial operations
+- Household scope is **automatic** from the token (no `householdId` in request bodies)
+- Request/response are **always JSON**
+- Status codes indicate outcomes: `200/201` for success, `400` for validation errors, `401` for auth issues, `404` for not found
+
+This foundation applies to all endpoints. Browse the [Endpoint Reference](#endpoint-reference) for the full API surface.
 
 ## Authentication
 

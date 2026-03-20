@@ -2,59 +2,71 @@
 title: Deployment
 ---
 
-Deployment strategy, configuration, and release checklist for the full app stack.
+Complete strategy, configuration steps, and verification checklist for deploying to staging or production. Follow the order exactly to avoid unexpected failures.
 
-## Deployment Strategy
+## Strategic Overview
 
-The app has three independently deployable parts. The safe order is database, backend, then frontend. This lets you verify each layer before moving to the next.
+The app is three independently deployable services. Deploy in this order:
 
-| Part | Deployment time | Complexity | Dependencies |
+1. **Database** → persistent storage ready
+2. **Backend** → API running, can test with Swagger
+3. **Frontend** → consuming the deployed backend
+
+Deploying out of order causes confusing failures. For example: deploying the frontend before the backend causes all API calls to fail silently.
+
+| Service | Time | What it needs | Verify with |
 |---|---|---|---|
-| Database | 10-15 min | Low | None (new environment) |
-| Backend | 10-20 min | Medium | Database must be ready |
-| Frontend | 5-10 min | Low | None (static files) |
+| PostgreSQL | 10–15 min | None (greenfield) | Connection string works |
+| ASP.NET Core API | 10–20 min | Database ready, JWT secret | Swagger UI responds, endpoints work |
+| React frontend | 5–10 min | Backend URL, build complete | App loads, can log in |
 
-The frontend only needs the backend URL. The backend needs database credentials and JWT settings.
+## What You'll Need
 
-## Environment Requirements
+Before starting, ensure your deployment environment has:
 
-To deploy and run the app:
+| Requirement | Why | Check with |
+|---|---|---|
+| **.NET 9 runtime** | Runs the backend service | `dotnet --version` |
+| **Node.js 18+** | Builds the React frontend | `node --version` |
+| **PostgreSQL 14+** | Database persistence | `psql --version` or check managed DB |
+| **HTTPS (TLS cert)** | Secure auth tokens and API calls | Test with curl to your domain |
+| **Environment variable support** | Secrets management for `ConnectionStrings`, `JwtSettings` | Check your hosting provider docs |
 
-| Requirement | Details |
-|---|---|
-| **.NET 9 runtime** | Run the backend |
-| **Node.js 18+** | Build the frontend |
-| **PostgreSQL 14+** | Data persistence |
-| **HTTPS capable** | Recommended for production |
-| **Environment variable support** | Needed for secrets in your hosting platform |
+Most modern hosting (Render, Railway, Heroku, AWS, Azure) has these pre-installed. If deploying to a custom server, install them first.
 
 ## Backend Configuration
 
-The backend reads settings from `appsettings.json`, `appsettings.Production.json`, and environment variables.
+The backend reads settings from `appsettings.json`, `appsettings.Production.json`, and environment variables. **Never embed secrets in code.** Always use environment variables or your hosting platform's secret manager.
 
-**Required settings:**
+**Required settings (don't skip these):**
 
-| Setting | Purpose | Example |
+| Setting | Purpose | Generate as |
 |---|---|---|
-| `ConnectionStrings__DefaultConnection` | Database connection | `Host=db.example.com;Port=5432;Database=budget;Username=app;Password=secret` |
-| `JwtSettings__Secret` | JWT signing key | `your-secret-key-32-chars-minimum-random` |
-| `JwtSettings__Issuer` | Token issuer claim | `HouseholdBudgetApi` |
-| `JwtSettings__Audience` | Token audience claim | `HouseholdBudgetApp` |
-| `JwtSettings__ExpirationMinutes` | Token lifetime | `60` |
-| `Cors__AllowedOrigins__0` | Frontend origin | `https://your-frontend.example.com` |
+| `ConnectionStrings__DefaultConnection` | PostgreSQL connection | `Host=db.example.com;Port=5432;Database=budget;Username=app;Password=<strong-random>` |
+| `JwtSettings__Secret` | Token signing key | 32+ random characters (e.g., `openssl rand -base64 32`) |
+| `JwtSettings__Issuer` | Token issuer claim | `HouseholdBudgetApi` (literal) |
+| `JwtSettings__Audience` | Token audience claim | `HouseholdBudgetApp` (literal) |
+| `JwtSettings__ExpirationMinutes` | Token lifetime | `60` (adjust based on your policy) |
+| `Cors__AllowedOrigins__0` | Frontend origin (production) | `https://your-app.example.com` |
 
-**Security best practices:**
+### Security Rules
 
-- Never commit production secrets to git
-- Use your hosting platform's secret manager or environment variables
-- JWT secret must be 32+ random characters
-- Use HTTPS for all public traffic
+- ✓ **DO** use your platform's environment variable or secret manager (Render, Railway, AWS Secrets Manager, etc.)
+- ✓ **DO** generate a random, 32+ character JWT secret (not guessable)
+- ✓ **DO** use HTTPS for all traffic (http://localhost is the only exception)
+- ✓ **DO** restrict CORS to trusted frontend origins only
+- ✗ **DON'T** commit any secrets to git
+- ✗ **DON'T** hardcode secret values in appsettings.Production.json
+- ✗ **DON'T** reuse the same secret across environments
 
-**Example for managed hosting (Render, Railway, etc.):**
+### Configuration Pattern (Managed Hosting)
 
-1. Create environment variables in your hosting dashboard
-2. Set them as deployment-time secrets (not in code)
-3. Reference them by name at runtime
+For Render, Railway, Heroku, or similar:
+
+1. Open your app's environment settings dashboard
+2. Add each secret as an environment variable
+3. Platform automatically injects them at runtime
+4. Example: set `JwtSettings__Secret` → backend reads it automatically
 
 ## Frontend Configuration
 

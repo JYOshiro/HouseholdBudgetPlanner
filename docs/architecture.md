@@ -25,22 +25,42 @@ Three independently deployable components:
 
 These components communicate via REST over HTTPS. The frontend needs the backend URL. The backend needs database credentials and JWT settings.
 
-**System Context Diagram (suggested):**
+**System Context Diagram:**
+
+This diagram shows how requests flow through all three layers:
+
 ```
-Browser → React SPA → HTTP API → ASP.NET Services → PostgreSQL
+┌─────────────────┐       ┌──────────────────┐       ┌──────────────┐
+│  Browser/React  │ HTTP  │  ASP.NET Core    │ SQL   │  PostgreSQL  │
+│  (Port 5173)    │◄────►│  API (Port 5000) │◄────►│  (Port 5432) │
+└─────────────────┘       └──────────────────┘       └──────────────┘
+    JWT Token                Service Layer           Financial Data
+    Auth State              Business Rules            Entities
+    UI State                Household Scoping         Relationships
 ```
+
+All communication is synchronous request-response. The backend is stateless—each request carries its own authorization context via JWT claims. The database is the single source of truth for all persistent state.
 
 ## Why This Approach
 
-Five core architectural decisions:
+Five core architectural decisions shaped this design:
 
-1. **Separate frontend and backend** — each side can be developed, tested, and deployed independently
-2. **Service-layer business logic** — keeps business rules and household scoping consistent across all endpoints, not scattered in controllers
-3. **DTOs for API contracts** — prevents leaking internal entity details and keeps the API stable even as the database model evolves
-4. **JWT tokens with household claims** — each request carries its own authorization context, so the backend doesn't need to look up household membership on every call
-5. **PostgreSQL with Entity Framework Core** — relational model maps cleanly to domain entities, migrations handle schema evolution, no impedance mismatch
+1. **Separate frontend and backend**  
+   Each layer can be changed, tested, and deployed independently. Frontend goes to Netlify, backend to your hosting provider. Database upgrades don't block frontend pushes.
 
-This keeps the codebase understandable while addressing real concerns: authentication, authorization, data ownership, and consistency.
+2. **Service-layer business logic**  
+   All household scoping, budget rules, and authentication checks happen in the same place. No scattered logic. This prevents bugs where one controller forgets to check household membership.
+
+3. **DTOs for API contracts**  
+   The API speaks DTOs, not database entities. Frontend never sees password fields, internal IDs, or other leaky details. DTOs also let you evolve the database schema without breaking integrations.
+
+4. **JWT tokens with household claims**  
+   Each request carries its own authorization context in the token. The backend doesn't need to look up household membership on every call. Faster, simpler, and the token is self-verifying via the JWT signature.
+
+5. **PostgreSQL with Entity Framework Core**  
+   Relational model maps cleanly to C# entities. Migrations handle schema evolution automatically. No impedance mismatch or complex ORM configs.
+
+Together, these decisions keep the codebase maintainable while solving real problems: auth, authorization, data isolation, and consistency. The result is code that's easy to reason about.
 
 ## Component Responsibilities
 
@@ -130,20 +150,34 @@ The important part: the household is never taken from the request body. It comes
 
 ### Data Ownership Model
 
-**Entity Relationship Diagram (suggested):**
-```
-Household (ownership root)
-  ├─ User
-  ├─ Expense
-  ├─ Income
-  ├─ Budget
-  ├─ Bill
-  └─ SavingsGoal
-       └─ GoalContribution
+**Entity Relationship Diagram:**
 
-Expense and Budget reference Category
-Category is either system-wide (null HouseholdId) or household-specific
+The household is the root of data ownership. All financial entities belong to a household. This is enforced at both database level (foreign keys) and application level (service-layer scoping).
+
 ```
+                    ┌──────────────┐
+                    │  Household   │◄──── Ownership root
+                    └──────┬───────┘
+           ┌────────────────┼────────────────┐
+           │                │                │
+      ┌────▼───┐       ┌───▼─────┐    ┌────▼──────┐
+      │  Users │       │ Category │    │ Expenses  │
+      └────────┘       └──────────┘    └───────────┘
+                             │
+                        ┌────▼──────┐
+                        │  Budgets  │
+                        └───────────┘
+           
+      ┌─────────────┐  ┌──────────┐  ┌───────────────┐
+      │   Income    │  │  Bills   │  │ SavingsGoals  │
+      └─────────────┘  └──────────┘  └───────┬───────┘
+                                              │
+                                      ┌───────▼──────┐
+                                      │Contributions │
+                                      └──────────────┘
+```
+
+Key principle: **All queries are scoped to the household.** You cannot load an Expense without also checking its household membership first. This happens in the service layer, not in repos or controllers.
 
 ### Key Entities
 

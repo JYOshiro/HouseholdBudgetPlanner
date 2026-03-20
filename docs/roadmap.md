@@ -2,91 +2,95 @@
 title: Roadmap
 ---
 
-Clear delivery status: what's complete, what's actively being built, and what comes next.
+Delivery status, timelines, and priorities from today through production launch.
 
-## Delivery Status
+## Status Summary
 
-| Workstream | Status | Next action |
-|---|---|---|
-| **Backend foundation** | ✓ Complete | No changes planned for baseline |
-| **Frontend application** | ⏳ In progress | Complete feature API integration |
-| **Quality & hardening** | 🔜 Planned | Expand test coverage before broad release |
+| Phase | Status | Timeline | Next milestone |
+|---|---|---|---|
+| **Backend foundation** | ✓ Complete | Complete | No changes planned |
+| **Frontend integration** | ⏳ In progress | 1–2 weeks | Dashboard + Transactions live |
+| **Quality & hardening** | 🔜 Planned | Week 3–4 | Full test coverage |
+| **Production readiness** | 🔜 Planned | Week 4+ | Feature-complete release |
 
-## Complete
+Get the full picture below. See [Frontend Guide](./frontend-guide.html) for implementation priorities and [Architecture](./architecture.html) for design decisions.
 
-The baseline is implemented and tested through Swagger.
+## ✓ Complete
 
-**Platform:**
-- Backend API with 10 financial modules
-- PostgreSQL schema and migrations
-- Startup category seeding
-- Global exception middleware
+The backend is production-ready today. All financial workflows and auth are fully implemented and tested via Swagger.
 
-**Authentication:**
-- User registration and login
-- JWT token generation and validation
-- Household scoping enforced across all modules
+**Backend API (ready for integration):**
+- 10 RESTful endpoints across finance modules (auth, expenses, income, budgets, bills, savings, dashboard)
+- JWT-based authentication with household isolation
+- PostgreSQL persistence with migrations
+- Default category seeding on startup
+- Global exception middleware for consistent error handling
 
-**Financial modules (full CRUD):**
-- Categories (default and household-custom)
-- Expenses and income tracking
-- Monthly budgets with uniqueness constraints
-- Bills with payment status tracking
-- Savings goals and contributions
-- Dashboard month-based summary endpoint
+**Frontend shell (ready for data binding):**
+- React SPA with routing and protected routes
+- Login, registration, and landing pages
+- Auth context with token persistence
+- Feature page scaffolds awaiting API integration
+- Responsive layout foundation
 
-**Frontend foundation:**
-- App shell with routing
-- Landing page, login, registration pages
-- Auth context and token persistence
-- Protected route guards
+## ⏳ In Progress
 
-## In Progress
+Frontend feature integration targets completion in 1–2 weeks.
 
-Active work targets API integration completeness.
+**Work priority (recommended sequence):**
 
-**Frontend integration work:**
+| Item | Week | Blocker | Success criteria |
+|---|---|---|---|
+| 1. API environment config | This week | None | `VITE_API_URL` points to working backend |
+| 2. Shared type definitions | This week | #1 | All DTOs mirrored in TypeScript |
+| 3. API service layer | This week | #2 | Services wrap all fetch calls |
+| 4. Dashboard page | Week 1 | #3 | Real `/dashboard/summary` data displays |
+| 5. Transactions page | Week 1 | #3 | Create/edit/delete expenses and income |
+| 6. Bills page | Week 1 | #3 | List bills and mark as paid |
+| 7. Budget & Savings pages | Week 2 | #3 | All feature pages functional |
+| 8. UX hardening | Week 2 | #7 | Loading states, error handling, empty states |
 
-| Item | Status | Purpose |
-|---|---|---|
-| API environment alignment | 🔜 Next | Fix `VITE_API_URL` mismatch between docs and code defaults |
-| Dashboard data binding | ⏳ | Connect real `/dashboard/summary` data |
-| Transactions pages | ⏳ | Bind expense and income CRUD to pages |
-| Budget pages | ⏳ | Display budgets and actual spending comparison |
-| Bills pages | ⏳ | Show upcoming bills and process payments |
-| Savings pages | ⏳ | Display goals, track contributions |
-| UX hardening | ⏳ | Loading, error, and empty states across all pages |
-
-**Definition of done for frontend:**
-- All pages functional end-to-end
+**Definition of done for this phase:**
+- All pages functional end-to-end (dashboard, transactions, budgets, bills, savings)
 - Auth session restored on page refresh
-- Consistent UX states (loading, error, empty, success)
-- Type-safe API consumption (DTOs aligned)
-- Graceful handling of 401 and network failures
+- Consistent UX patterns (loading spinners, error messages, empty states)
+- Type-safe API consumption (DTOs match backend exactly)
+- Graceful handling of 401 (logout), network failures (retry), and validation errors (form feedback)
 
-## Planned
+## 🔜 Planned
 
-Next priorities after frontend completeness.
+After frontend integration is complete (weeks 3+).
 
-**Quality and testing (high priority):**
-- Backend unit tests for service layer
-- Backend integration tests for auth and household isolation
-- Frontend component tests for routing and auth
-- End-to-end tests for critical user workflows
-- All tests running in CI on pull requests
+**Phase 3: Quality & Testing (Week 3)**
 
-**Production readiness:**
-- Health check endpoint for monitoring
-- Rate limiting on auth endpoints (brute-force protection)
-- Audit logging for sensitive operations
-- Session refresh and expiry improvements
-- Documentation for operational runbooks
+*Priority: Required before broad release*
 
-**Product enhancement (lower priority):**
-- Richer dashboard views (trends, summaries)
-- Budget variance reporting and forecasting
-- Reporting exports (PDF, CSV)
-- Enhanced mobile responsiveness
+- Backend unit tests for all service layer logic
+- Backend integration tests for auth flows and household isolation
+- Frontend component tests for routing and auth context
+- End-to-end tests for critical workflows (register → create expense → view dashboard)
+- CI/CD integration: tests run on every pull request, block merge if failing
+
+**Phase 4: Production Readiness (Week 4)**
+
+*Priority: Required before deployment*
+
+- Health check endpoint (for monitoring and load balancers)
+- Rate limiting on auth endpoints (prevent brute-force attacks)
+- Audit logging for sensitive operations (login, payments, goal creation)
+- Session management: token refresh, expiry policies, graceful logout
+- Operational runbooks (deployment, troubleshooting, incident response)
+- Security review and penetration testing
+
+**Phase 5: Product Enhancement (Post-launch)**
+
+*Priority: Nice-to-have, can ship later*
+
+- Dashboard trends: spending over time, category breakdowns
+- Budget variance reporting: where you overspent vs actual budget
+- Reporting exports: CSV and PDF statements
+- Enhanced mobile responsiveness: better tablet and phone UX
+- Notifications: upcoming bills, savings goals near completion
 
 ## Long-Term (Future)
 
