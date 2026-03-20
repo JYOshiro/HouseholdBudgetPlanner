@@ -2,212 +2,280 @@
 title: Frontend Guide
 ---
 
-This page describes the current frontend implementation, the intended direction for the app structure, and the main integration priorities. It is written for developers who need to understand what already exists and what still needs work.
+This page describes the current frontend implementation, the target architecture, and the implementation roadmap. It's written for developers who need to understand what exists now and how to complete the app.
 
 ## Quick Links
 
-- [Current Status](#current-status)
-- [Technology Stack](#technology-stack)
-- [Current Structure](#current-structure)
-- [Routing](#routing)
-- [Authentication and Token Handling](#authentication-and-token-handling)
-- [Backend Integration Approach](#backend-integration-approach)
-- [Known Gaps and Priorities](#known-gaps-and-priorities)
+- [Current State](#current-state)
+- [Target State](#target-state)
+- [Implementation Sequence](#implementation-sequence)
+- [Technology and Structure](#technology-and-structure)
+- [Backend Integration](#backend-integration)
 
-## Current Status
+## Current State
 
-Current status: Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned.
+The frontend is beyond the scaffold stage but not yet feature-complete.
 
-The frontend is beyond the scaffold stage. It already includes a working application shell and authentication foundation.
+**What's built:**
 
-| Area | Status | Notes |
+| Component | Status | Notes |
 |---|---|---|
-| App shell | Implemented | Main app layout, router, and feature pages exist |
-| Landing page | Implemented | Separate public entry page exists at `/` |
-| Authentication UI | Implemented | Login and registration pages are present |
-| Auth state management | Implemented | `AuthContext` stores the token and current user |
-| Protected routing | Implemented | Auth-only routes are guarded with `RequireAuth` |
-| Shared HTTP client | Implemented | `shared/api/httpClient.ts` handles API requests and error wrapping |
-| Feature data integration | Partial | Some pages exist before full API wiring is complete |
-| UX hardening | In progress | Loading, error, and empty states need broader coverage |
+| App shell and routing | ✓ | Main layout, route definitions, public/auth areas configured |
+| Landing page | ✓ | Public homepage before login |
+| Auth pages | ✓ | Login and registration UI complete |
+| Auth infrastructure | ✓ | `AuthContext`, token persistence, session bootstrap |
+| Protected routing | ✓ | `RequireAuth` and `RedirectIfAuthenticated` guards in place |
+| Shared HTTP client | ✓ | Fetch wrapper with token injection, error handling |
+| Feature pages | ⏳ | Dashboard, transactions, budget, bills, savings, household, settings scaffolds exist |
+| Feature bindings | ⏳ | Page structure exists but most API integration incomplete |
+| UX hardening | ⏳ | Loading, error, and empty states need broader coverage |
 
-> Important: the current frontend expects `VITE_API_URL`, not `VITE_API_BASE_URL`. The local default in code is `https://localhost:5001/api`, which does not match the main docs default of `http://localhost:5000/api` unless you override it.
+**Key note:** The frontend expects `VITE_API_URL` (not `VITE_API_BASE_URL`). The code defaults to `https://localhost:5001/api`, which does NOT match the documented backend at `http://localhost:5000/api`. Always set `VITE_API_URL` explicitly in local development.
 
-## Technology Stack
+## Target State
 
-| Technology | Purpose |
+The finished frontend should:
+
+1. **All pages functional end-to-end**
+   - Dashboard shows real month-based summaries
+   - Transactions page lists and creates expenses/income
+   - Budget page shows limits and spending
+   - Bills page displays and allows payment
+   - Savings page tracks goals and contributions
+   - Household page shows members
+   - Settings page available
+
+2. **Consistent UX across all pages**
+   - Loading spinners while fetching data
+   - Error messages on API failures
+   - Empty state guidance when no data exists
+   - Form validation feedback
+   - Success confirmations on create/update/delete
+
+3. **Reliable auth flow**
+   - Token bootstrap at app start
+   - Session restored on page refresh
+   - Graceful logout
+   - Expired token handling (redirect to login)
+   - Token refresh mechanism (optional)
+
+4. **Frontend DevX**
+   - Type-safe API consumption (DTO alignment)
+   - Reusable API client functions
+   - Clear error boundaries and retry logic
+   - Structured component hierarchy
+   - Shared utilities for formatting and validation
+
+## Implementation Sequence
+
+Recommend building features in this order to unblock dependencies:
+
+### Phase 1: API integration foundation (immediate blockers)
+
+1. **Fix `VITE_API_URL` configuration**
+   - Update `frontend/.env.local` and `.env.production`
+   - Align with backend documentation
+   - Prevents silent integration failures
+
+2. **Build shared type definitions**
+   - Add TypeScript interfaces for all backend DTOs under `shared/types/api.ts`
+   - Mirror the backend DTOs exactly (source of truth)
+   - Makes API consumption type-safe
+
+3. **Build API service layer**
+   - One service module per domain (`expenseService.ts`, `budgetService.ts`, etc.)
+   - Export simple functions that wrap fetch calls
+   - Handle errors consistently (401 → logout, 400 → validation feedback, 5xx → retry)
+
+### Phase 2: Core workflows (dependencies manageable)
+
+4. **Dashboard page**
+   - Fetch `/api/dashboard/summary` for current month
+   - Display totals, recent transactions, upcoming bills, savings progress
+   - Add month/year selector
+
+5. **Transactions page**
+   - List expenses and income together
+   - Create/edit/delete flows
+   - Filter by category if time permits
+   - This unblocks understanding the main financial story
+
+6. **Bills page**
+   - List bills with status
+   - Support "mark as paid" action
+   - Quick win: simpler than transactions
+
+### Phase 3: Secondary features (can happen in parallel)
+
+7. **Budget page**
+   - List monthly budgets
+   - Create/edit budgets
+   - Show actual vs budgeted comparison
+
+8. **Savings page**
+   - List goals with progress bars
+   - Create goals
+   - Add contributions
+
+9. **Household page**
+   - Display household name and members
+   - (Multi-user edit not in baseline)
+
+### Phase 4: UX hardening and polish
+
+10. **Consistent loading, error, empty states**
+    - Add a shared `<Loading />` component
+    - Add shared error fallback UI
+    - Add "no data" guidance on each page
+
+11. **Form validation**
+    - Client-side validation before submit
+    - Server error feedback in forms
+    - Prevent duplicate submissions
+
+12. **Auth hardening**
+    - Graceful token expiry (redirect to login with message)
+    - Automatic logout on 401
+    - Retry logic for transient failures
+
+## Module Recommendations
+
+Organize feature modules like this:
+
+```
+features/
+├── dashboard/
+│   ├── pages/DashboardPage.tsx
+│   ├── components/SummaryCard.tsx
+│   ├── services/dashboardService.ts
+│   ├── types/index.ts
+│   └── hooks/useDashboard.ts
+├── transactions/
+│   ├── pages/TransactionsPage.tsx
+│   ├── components/TransactionList.tsx
+│   ├── components/TransactionForm.tsx
+│   ├── services/expenseService.ts
+│   ├── services/incomeService.ts
+│   ├── types/index.ts
+│   └── hooks/useTransactions.ts
+├── [budget/, bills/, savings/, etc. — same structure]
+```
+
+Each feature module is self-contained. Services call the shared HTTP client. Components don't call fetch directly.
+
+## Technology and Structure
+
+### Current Stack
+
+| Layer | Stack |
 |---|---|
-| React 18 | Component-based UI |
-| TypeScript | Shared type safety across app state and API data |
-| Vite | Dev server and build pipeline |
-| React Router 7 | Route definitions and guarded navigation |
-| Fetch API | HTTP communication |
-| Tailwind CSS and UI libraries | Styling and component primitives |
+| Framework | React 18 + TypeScript |
+| Build + Dev | Vite 5 |
+| Routing | React Router 7 |
+| HTTP | Fetch API (wrapped) |
+| Styling | Tailwind CSS + Shadcn/UI |
+| State management | Context API (auth) + React hooks (feature state) |
 
-## Current Structure
+### Current Folder Structure
 
-The frontend follows a mostly feature-based structure with app-level routing and shared infrastructure.
-
-```text
+```
 frontend/src/
 ├── app/
-│   ├── App.tsx
-│   ├── providers/
-│   └── router/
+│   ├── App.tsx              # Root, router setup
+│   ├── providers/           # Global context providers
+│   └── router/              # Route definitions
 ├── features/
-│   ├── auth/
-│   ├── bills/
+│   ├── auth/                # Login, register, auth context
+│   ├── landing/             # Public home page
+│   ├── dashboard/           # User dashboard
+│   ├── transactions/        # Expenses and income
 │   ├── budget/
-│   ├── dashboard/
-│   ├── finance/
-│   ├── household/
-│   ├── landing/
+│   ├── bills/
 │   ├── savings/
-│   ├── settings/
-│   └── transactions/
+│   ├── household/
+│   └── settings/
 ├── shared/
-│   ├── api/
-│   ├── layout/
-│   └── types/
-├── styles/
-└── main.tsx
+│   ├── api/                 # HTTP client, endpoints
+│   ├── layout/              # Main app layout wrapper
+│   ├── types/               # Shared TypeScript types
+│   └── utils/               # Formatting, validation helpers
+├── styles/                  # Global CSS
+└── main.tsx                 # Vite entry point
 ```
 
-### What each area is for
+## Backend Integration
 
-| Folder | Purpose |
-|---|---|
-| `app/` | App bootstrapping, router setup, and global providers |
-| `features/auth/` | Auth pages, auth API calls, route guards, and auth context |
-| `features/landing/` | Public landing page |
-| `features/dashboard/` | Dashboard page and summary views |
-| `features/transactions/` | Transaction-focused screens, likely combining expense and income workflows |
-| `features/budget/` | Budget pages |
-| `features/bills/` | Bills pages |
-| `features/savings/` | Savings goal pages |
-| `features/household/` | Household-related pages |
-| `features/settings/` | Settings area |
-| `shared/api/` | Shared HTTP client and request helpers |
-| `shared/layout/` | Main authenticated layout |
-| `shared/types/` | Shared API and view-model types |
+### Shared HTTP Client
 
-## Routing
+Located at `shared/api/httpClient.ts`. Provides:
 
-The current router uses a public area and an authenticated app area.
+- API base URL (from `VITE_API_URL`)
+- Request helper with automatic token injection
+- Response parsing and error extraction
+- API error type with status and message
 
-| Route | Purpose | Access |
-|---|---|---|
-| `/` | Landing page | Public |
-| `/login` | Login page | Public |
-| `/register` | Registration page | Public |
-| `/app` | App shell with dashboard by default | Auth required |
-| `/app/transactions` | Transactions page | Auth required |
-| `/app/budget` | Budget page | Auth required |
-| `/app/bills` | Bills page | Auth required |
-| `/app/savings` | Savings page | Auth required |
-| `/app/household` | Household page | Auth required |
-| `/app/settings` | Settings page | Auth required |
-
-`RequireAuth` protects the `/app` route tree. `RedirectIfAuthenticated` keeps signed-in users away from `/login` and `/register`.
-
-## Authentication and Token Handling
-
-The current auth flow is already implemented in the app.
-
-1. The user logs in or registers.
-2. The frontend receives an auth response with `token`, `expiresIn`, and `user`.
-3. The token is stored in local storage under `hb_auth_token`.
-4. `AuthContext` keeps the active user and token in app state.
-5. On app startup, the provider calls `GET /api/auth/me` when a token exists.
-6. If the token is invalid, the app clears local auth state.
-
-### Current auth responsibilities
-
-| Part | Responsibility |
-|---|---|
-| `AuthContext` | Stores token, user, loading state, login, register, logout, and refresh behavior |
-| `authApi` | Wraps `/auth/register`, `/auth/login`, and `/auth/me` |
-| `RequireAuth` | Blocks unauthenticated access to app routes |
-| `RedirectIfAuthenticated` | Redirects signed-in users away from auth pages |
-
-## Backend Integration Approach
-
-The current integration pattern is service-oriented and should stay that way.
-
-### Shared HTTP client
-
-`shared/api/httpClient.ts` provides:
-
-- the API base URL
-- a common request helper
-- an `ApiError` type with status and payload
-- basic response parsing and validation error extraction
-
-### Current environment variable
-
-```env
-VITE_API_URL=http://localhost:5000/api
-```
-
-This should be set explicitly in local development to avoid the current fallback mismatch.
-
-### Recommended integration rules
-
-1. Keep raw `fetch` calls inside shared API helpers or feature API modules.
-2. Keep route components focused on state and rendering, not request construction.
-3. Mirror backend DTOs in shared TypeScript types.
-4. Do not send `householdId` from the frontend. Household scope is derived from JWT claims.
-5. Handle `401`, `400`, and network failures explicitly in the UI.
-
-### Example pattern
+**Usage pattern:**
 
 ```typescript
-import { apiRequest } from "../../shared/api/httpClient";
-import type { Expense } from "../../shared/types/api";
+import { request } from "../../shared/api/httpClient";
+import type { Expense } from "../../shared/types";
 
-export function getExpenses(token: string) {
-  return apiRequest<Expense[]>("/expenses", {
-    method: "GET",
-    token,
-  });
-}
+export const expenseService = {
+  list: (token: string) =>
+    request<Expense[]>("/expenses", {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  create: (token: string, data: CreateExpenseDto) =>
+    request<Expense>("/expenses", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(data),
+    }),
+};
 ```
 
-## DTO and Contract Alignment
+### Important Rules
 
-The backend DTOs are the source of truth for API shapes.
+1. **Never send `householdId` from the frontend.** It comes from JWT claims on the backend.
+2. **Don't import DTOs from backend.** Mirror them as TypeScript interfaces in `shared/types/api.ts`.
+3. **All API calls go through feature services,** not directly in components.
+4. **Handle 401 specially:** Log out the user and redirect to login.
+5. **Mirror backend DTO changes immediately** to avoid contract drift.
 
-| Contract source | Location |
-|---|---|
-| Backend DTOs | `backend/DTOs/` |
-| Frontend shared types | `frontend/src/shared/types/api.ts` |
-| Interactive reference | Swagger UI at `http://localhost:5000/swagger` |
+### Environment Configuration
 
-When a backend DTO changes, the matching frontend type should be updated at the same time.
+```env
+# frontend/.env.local (development)
+VITE_API_URL=http://localhost:5000/api
 
-## Known Gaps and Priorities
+# frontend/.env.production (before build)
+VITE_API_URL=https://your-api.example.com/api
+```
 
-| Priority | Item | Why it matters |
-|---|---|---|
-| High | Standardize local API URL configuration | Prevents avoidable local integration failures |
-| High | Complete feature-level API wiring | Makes the existing screens functional end to end |
-| High | Add consistent loading and error states | Prevents fragile or confusing UX |
-| Medium | Review naming consistency across features | `transactions`, `budget`, and `finance` should map clearly to backend domains |
-| Medium | Expand type coverage | Reduces drift between frontend and backend contracts |
-| Medium | Improve session expiry handling | Better redirects and messaging on token expiry |
-| Lower | Add more reusable view components | Helps keep page implementations consistent |
+Without this set correctly, API calls will silently fail or hit the wrong server.
 
-## Suggested Next Frontend Milestones
+## Next Steps
 
-1. align `VITE_API_URL` across local, production, and documentation
-2. wire dashboard and transaction pages to live endpoints
-3. complete CRUD flows for budgets, bills, and savings goals
-4. add loading, empty, and error states across all authenticated pages
-5. add frontend tests around auth bootstrap and protected routing
+**Immediate (today):**
+- Fix `VITE_API_URL` environment configuration
+- Add type definitions for all backend DTOs
+
+**This week:**
+- Build API service modules
+- Wire dashboard to real data
+
+**Next week:**
+- Complete transactions, budget, bills pages
+- Add consistent UX states (loading, error, empty)
+
+**Polish phase:**
+- Auth hardening (token expiry, retry logic)
+- Form validation and feedback
+- Comprehensive component tests
 
 ## Related Pages
 
-- [Getting Started](./getting-started.html)
 - [API Reference](./api-reference.html)
 - [Architecture](./architecture.html)
-- [Roadmap](./roadmap.html)
+- [Deployment](./deployment.html)
+- [Getting Started](./getting-started.html)

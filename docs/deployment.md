@@ -2,176 +2,264 @@
 title: Deployment
 ---
 
-This page covers the practical deployment model for the frontend, backend, and database. It focuses on what needs to be configured, what order to deploy in, and what to verify before release.
+Deployment strategy, configuration, and release checklist for the full app stack.
 
-## Quick Links
+## Deployment Strategy
 
-- [Deployment Model](#deployment-model)
-- [Environment Requirements](#environment-requirements)
-- [Backend Configuration](#backend-configuration)
-- [Frontend Configuration](#frontend-configuration)
-- [Deployment Flow](#deployment-flow)
-- [Release Checklist](#release-checklist)
+The app has three independently deployable parts. The safe order is database, backend, then frontend. This lets you verify each layer before moving to the next.
 
-## Deployment Model
+| Part | Deployment time | Complexity | Dependencies |
+|---|---|---|---|
+| Database | 10-15 min | Low | None (new environment) |
+| Backend | 10-20 min | Medium | Database must be ready |
+| Frontend | 5-10 min | Low | None (static files) |
 
-The app is made of three deployable parts.
-
-| Part | What it runs | Typical hosting options |
-|---|---|---|
-| Frontend | Static assets built by Vite | GitHub Pages, Netlify, Vercel, static CDN |
-| Backend API | ASP.NET Core application | Azure App Service, Render, Railway, VM, container host |
-| Database | PostgreSQL | Managed PostgreSQL provider or self-hosted instance |
-
-The frontend only needs to know the backend API URL. The backend needs database access, JWT settings, and allowed frontend origins.
+The frontend only needs the backend URL. The backend needs database credentials and JWT settings.
 
 ## Environment Requirements
 
-| Requirement | Notes |
+To deploy and run the app:
+
+| Requirement | Details |
 |---|---|
-| .NET 9 runtime or SDK | Required to run the backend |
-| Node.js | Required to build the frontend |
-| PostgreSQL | Required for persistence |
-| Environment variable support | Needed for secrets and deployment-specific config |
-| HTTPS | Strongly recommended for any public environment |
+| **.NET 9 runtime** | Run the backend |
+| **Node.js 18+** | Build the frontend |
+| **PostgreSQL 14+** | Data persistence |
+| **HTTPS capable** | Recommended for production |
+| **Environment variable support** | Needed for secrets in your hosting platform |
 
 ## Backend Configuration
 
-The backend reads configuration from `appsettings` and environment variables.
+The backend reads settings from `appsettings.json`, `appsettings.Production.json`, and environment variables.
 
-### Required backend settings
+**Required settings:**
 
 | Setting | Purpose | Example |
 |---|---|---|
-| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | `Host=db;Port=5432;Database=budget_prod;Username=app;Password=secret` |
-| `JwtSettings__Secret` | JWT signing secret | `long-random-secret-at-least-32-characters` |
-| `JwtSettings__Issuer` | Token issuer | `HouseholdBudgetApi` |
-| `JwtSettings__Audience` | Token audience | `HouseholdBudgetApp` |
+| `ConnectionStrings__DefaultConnection` | Database connection | `Host=db.example.com;Port=5432;Database=budget;Username=app;Password=secret` |
+| `JwtSettings__Secret` | JWT signing key | `your-secret-key-32-chars-minimum-random` |
+| `JwtSettings__Issuer` | Token issuer claim | `HouseholdBudgetApi` |
+| `JwtSettings__Audience` | Token audience claim | `HouseholdBudgetApp` |
 | `JwtSettings__ExpirationMinutes` | Token lifetime | `60` |
-| `Cors__AllowedOrigins__0` | First allowed frontend origin | `https://your-frontend.example.com` |
+| `Cors__AllowedOrigins__0` | Frontend origin | `https://your-frontend.example.com` |
 
-> Security note: do not keep production secrets in committed configuration files. Use your host's secret or environment variable mechanism.
+**Security best practices:**
+
+- Never commit production secrets to git
+- Use your hosting platform's secret manager or environment variables
+- JWT secret must be 32+ random characters
+- Use HTTPS for all public traffic
+
+**Example for managed hosting (Render, Railway, etc.):**
+
+1. Create environment variables in your hosting dashboard
+2. Set them as deployment-time secrets (not in code)
+3. Reference them by name at runtime
 
 ## Frontend Configuration
 
-The frontend currently reads this build-time variable:
+The frontend reads one build-time variable:
 
-| Setting | Purpose | Example |
+| Variable | Purpose | Example |
 |---|---|---|
-| `VITE_API_URL` | Base URL for API requests | `https://your-api.example.com/api` |
+| `VITE_API_URL` | Backend API base URL | `https://api.example.com/api` |
 
-Example production environment file:
+**Set before building:**
+
+```bash
+# Local development
+export VITE_API_URL=http://localhost:5000/api
+npm run dev
+
+# Production build
+export VITE_API_URL=https://api.example.com/api
+npm run build
+```
+
+Or create a `.env.production` file:
 
 ```env
-VITE_API_URL=https://your-api.example.com/api
+VITE_API_URL=https://api.example.com/api
 ```
 
 ## Deployment Flow
 
-The safest deployment order is database, backend, then frontend.
+### Step 1: Prepare the Database
 
-### 1. Prepare the database
+1. Create a PostgreSQL database instance (managed DB or self-hosted)
+2. Create an application user with full permissions on the database
+3. Test the connection string: `psql "Host=... User=... Password=... Database=..."`
 
-- create the production PostgreSQL database
-- create the application user and permissions
-- confirm the connection string works from the backend host
+Nothing else to do; migrations will create tables.
 
-### 2. Configure backend settings
+### Step 2: Configure Backend Secrets
 
-Set the database connection string, JWT settings, and CORS allowed origins in the hosting environment.
+Set these in your hosting environment:
 
-### 3. Apply backend migrations
+- `ConnectionStrings__DefaultConnection`
+- `JwtSettings__Secret`
+- `JwtSettings__Issuer`
+- `JwtSettings__Audience`
+- `JwtSettings__ExpirationMinutes`
+- `Cors__AllowedOrigins__0` (and `_1`, `_2` if multiple origins)
+
+### Step 3: Apply Database Migrations
 
 ```bash
 cd backend
-dotnet ef database update --connection "Host=...;Port=5432;Database=...;Username=...;Password=..."
+
+# Option A: With connection string argument
+dotnet ef database update --connection "Host=...;Port=5432;Database=budget;Username=app;Password=secret"
+
+# Option B: Using environment variable
+export ConnectionStrings__DefaultConnection="Host=...;Port=5432;Database=budget;Username=app;Password=secret"
+dotnet ef database update
 ```
 
-### 4. Publish and deploy the backend
+This creates tables and seeds default categories. Wait for `Done.` message.
+
+### Step 4: Build and Deploy Backend
 
 ```bash
 cd backend
 dotnet publish -c Release -o ./publish
 ```
 
-Run the published app with:
+Upload `publish/` folder to your hosting service, or use your platform's git-to-deployment feature.
 
-```bash
-cd backend/publish
+**Start command for your hosting platform:**
+
+```
 dotnet HouseholdBudgetApi.dll
 ```
 
-### 5. Verify the backend before shipping the frontend
+**Environment variables:** Set the secrets from Step 2 in your hosting environment.
 
-- confirm the API starts cleanly
-- confirm the database migrates successfully
-- confirm Swagger or an equivalent test path works in the intended environment
-- confirm a real login request returns a valid token
+### Step 5: Verify Backend Before Release
 
-### 6. Build and deploy the frontend
+Before deploying the frontend, confirm the backend works:
+
+1. Check startup logs: `dotnet HouseholdBudgetApi.dll` should start cleanly
+2. Verify database migrations completed
+3. Test Swagger UI: `https://your-api.example.com/swagger` (if public)
+4. Test auth: Call `POST /api/auth/register` and `POST /api/auth/login`
+5. Verify token use: Call `GET /api/auth/me` with the token
+
+If anything fails, don't proceed to the frontend.
+
+### Step 6: Build Frontend
 
 ```bash
 cd frontend
+
+# Set API URL for production
+export VITE_API_URL=https://your-api.example.com/api
+
 npm install
 npm run build
 ```
 
-Deploy the generated `frontend/dist/` output to your static hosting provider.
+Output is in `frontend/dist/`. This is 100% static—no runtime required.
 
-### 7. Configure SPA route fallback
+### Step 7: Deploy Frontend
 
-React Router routes need a fallback to `index.html` on refresh.
+Upload `dist/` to your static host:
 
-| Host | Required rule |
-|---|---|
-| Netlify | `_redirects` with `/* /index.html 200` |
-| Vercel | Rewrite all unmatched routes to `/index.html` |
-| Nginx | `try_files $uri /index.html;` |
-| GitHub Pages | Use the app with a GitHub Pages-friendly SPA routing strategy or 404 redirect pattern |
+- **GitHub Pages:** Push to `docs/` folder in your repo and enable Pages
+- **Netlify:** Connect your git repo, set build command to `npm run build`, output to `dist/`
+- **Vercel:** Same as Netlify, handles it automatically
+- **AWS S3 + CloudFront:** Upload `dist/` contents to S3, enable CloudFront distribution
+- **Custom server (Nginx):** Copy `dist/` contents to your web root
 
-## Minimal Release Verification
+### Step 8: Configure SPA Routing Fallback
 
-After deployment, verify these flows in order:
+React Router requires this: all unmapped paths should serve `index.html`.
 
-1. API health and startup logs look normal.
-2. Registration works.
-3. Login returns a token.
-4. A protected endpoint works with that token.
-5. The frontend loads and can authenticate against the deployed API.
-6. A page refresh on a protected route still resolves correctly.
+**Netlify:**
+Create `frontend/_redirects`:
+```
+/* /index.html 200
+```
 
-## Release Checklist
+**Vercel:**
+Create `frontend/vercel.json`:
+```json
+{
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/index.html" }
+  ]
+}
+```
 
-### Security
+**Nginx:**
+```nginx
+location / {
+  try_files $uri /index.html;
+}
+```
 
-- [ ] production JWT secret is strong and not stored in source control
-- [ ] backend only allows trusted frontend origins
-- [ ] HTTPS is enabled for public traffic
-- [ ] Swagger exposure is a deliberate choice for production
+**GitHub Pages:**
+Use the `.nojekyll` file to prevent Jekyll processing, or use a custom 404→index.html redirect.
 
-### Data and backend
+## Release Verification Checklist
 
-- [ ] migrations have been applied successfully
-- [ ] startup seeding completed as expected
-- [ ] production logging is enabled at a sensible level
-- [ ] exception responses do not expose internal details
+Run through this before announcing the deployment:
 
-### Frontend
+### Security ✓
 
-- [ ] `VITE_API_URL` points to the deployed API
-- [ ] production build completes successfully
-- [ ] SPA route fallback is configured
-- [ ] login, protected navigation, and logout have been tested
+- [ ] Production JWT secret is strong (32+ random characters)
+- [ ] Backend only allows trusted frontend origins in CORS settings
+- [ ] HTTPS is enabled for all traffic (frontend and backend)
+- [ ] Swagger is intentionally public (or restricted)
 
-### Operations
+### Backend ✓
 
-- [ ] rollback plan exists for backend and schema changes
-- [ ] backups or recovery procedures exist for the database
-- [ ] environment configuration is documented outside source control
+- [ ] Database migrations applied successfully
+- [ ] Startup logging shows no errors
+- [ ] Default categories seeded on first run
+- [ ] Exception middleware is working (test with invalid token)
+
+### Frontend ✓
+
+- [ ] `VITE_API_URL` points to the deployed backend
+- [ ] Production build completes without errors
+- [ ] SPA routing fallback is configured
+- [ ] Pages load (test landing, login, dashboard)
+
+### Integration ✓
+
+- [ ] Can register a new account
+- [ ] Can log in with created account
+- [ ] Can create expenses, budgets, bills
+- [ ] Dashboard loads actual month data
+- [ ] Page refresh preserves authentication (token restored)
+
+### Operational ✓
+
+- [ ] You have a rollback plan if something breaks
+- [ ] Database backups are enabled
+- [ ] Environment configuration is documented (outside git)
+
+## Common Issues
+
+| Problem | Cause | Fix |
+|---|---|---|
+| Frontend can't reach backend | CORS not configured, wrong API URL | Set `VITE_API_URL` correctly, add frontend origin to backend CORS |
+| `401 Unauthorized` on every request | JWT secret doesn't match, token expired | Verify secret is same on all instances, refresh token |
+| Page refresh logs out the user | Token not in localStorage | Check browser storage, verify auth context recovery |
+| Migrations fail at startup | Wrong connection string, user permissions | Test connection string manually, grant permissions |
+| Swagger UI is blank | ASPNETCORE_ENVIRONMENT not set to Development | Set `ASPNETCORE_ENVIRONMENT=Production` if you want Swagger restricted |
+
+## Next Steps
+
+1. Set target hosting platforms for frontend and backend
+2. Create environment variable documentation (for your team)
+3. Test deploy cycle locally first (docker or local .NET + postgres)
+4. Run through the release checklist
 
 ## Related Pages
 
 - [Getting Started](./getting-started.html)
-- [Frontend Guide](./frontend-guide.html)
+- [Architecture](./architecture.html)
 - [API Reference](./api-reference.html)
 - [Roadmap](./roadmap.html)

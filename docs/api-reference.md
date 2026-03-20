@@ -2,14 +2,17 @@
 title: API Reference
 ---
 
-This page documents the current backend API in a format that is quick to scan and practical to use during development. For exact schemas, use Swagger alongside this page.
+Complete reference for the backend API. Organized for both first-time integrators and ongoing development.
+
+For exact request/response schemas, use [Swagger UI](http://localhost:5000/swagger) alongside this page.
 
 ## Quick Links
 
 - [Base URLs](#base-urls)
+- [Typical Integration Flow](#typical-integration-flow)
 - [Authentication](#authentication)
 - [Status Codes](#status-codes)
-- [Endpoint Groups](#endpoint-groups)
+- [Endpoint Reference](#endpoint-reference)
 - [Examples](#examples)
 - [Developer Notes](#developer-notes)
 
@@ -18,154 +21,244 @@ This page documents the current backend API in a format that is quick to scan an
 | Environment | URL |
 |---|---|
 | Local API | `http://localhost:5000/api` |
-| Local Swagger UI | `http://localhost:5000/swagger` |
+| Local Swagger | `http://localhost:5000/swagger` |
 
-> The frontend HTTP client currently reads `VITE_API_URL` and falls back to `https://localhost:5001/api`. If you are developing locally against the documented backend URL, set `VITE_API_URL=http://localhost:5000/api` in the frontend environment.
+> **Frontend integration note:** The frontend reads `VITE_API_URL` and falls back to `https://localhost:5001/api`. For local development against the backend at `http://localhost:5000`, set `VITE_API_URL=http://localhost:5000/api` in **frontend/.env.local**.
+
+## Typical Integration Flow
+
+New integrators should follow this sequence:
+
+**1. Register a household:**
+```http
+POST /api/auth/register
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!",
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "householdName": "My Home"
+}
+```
+
+Response includes a `token`. Store it.
+
+**2. Log in (for future sessions):**
+```http
+POST /api/auth/login
+Content-Type: application/json
+
+{
+  "email": "user@example.com",
+  "password": "Password123!"
+}
+```
+
+Response includes a new `token`.
+
+**3. Use the token on all protected requests:**
+```http
+GET /api/auth/me
+Authorization: Bearer <token>
+```
+
+This returns your user profile and confirms the token works.
+
+**4. Fetch categories (provided by default):**
+```http
+GET /api/categories
+Authorization: Bearer <token>
+```
+
+**5. Create an expense:**
+```http
+POST /api/expenses
+Authorization: Bearer <token>
+Content-Type: application/json
+
+{
+  "amount": 25.50,
+  "description": "Coffee",
+  "categoryId": 1,
+  "date": "2026-03-20T14:30:00Z",
+  "isShared": false
+}
+```
+
+**6. Get a monthly summary:**
+```http
+GET /api/dashboard/summary?year=2026&month=3
+Authorization: Bearer <token>
+```
+
+This is the foundation. All other endpoints follow the same pattern: token in `Authorization` header, household scope is automatic.
 
 ## Authentication
 
-All endpoints require a bearer token except:
-
+Two endpoints are unprotected:
 - `POST /api/auth/register`
 - `POST /api/auth/login`
 
-Send the token in the request header:
+All other endpoints require a bearer token:
 
 ```http
-Authorization: Bearer <jwt-token>
+Authorization: Bearer <your-jwt-token>
 ```
 
-Authentication uses JWT bearer tokens. Household scope is derived from JWT claims. Clients must not send `householdId` in request bodies.
+**How it works:**
 
-### Auth flow
+1. Token is issued at registration or login
+2. Token includes `userId`, `email`, and `householdId` claims
+3. Backend uses `householdId` from the token to determine what data you can access
+4. You cannot override the household by sending `householdId` in the request body — it's ignored
 
-1. Register a user or log in.
-2. Read the `token` field from the response.
-3. Send that token on all protected requests.
-4. Use `GET /api/auth/me` to restore the current session.
+**Token expiration:**
 
-The token carries user and household context. The API derives household scope from JWT claims.
+Tokens expire after a fixed duration (default: 60 minutes). When expired, log in again to get a new token.
 
-> Swagger tip: use the `Authorize` button and enter `Bearer <token>` once. Swagger will then send it on protected requests automatically.
+**Swagger testing:**
+
+Click the **Authorize** button in Swagger and enter `Bearer <token>`. Swagger will send it on all subsequent requests.
 
 ## Status Codes
 
-| Code | Meaning | Typical cause |
+| Code | Meaning | Typical causes |
 |---|---|---|
-| `200 OK` | Request succeeded | Read, update, or action endpoints |
-| `201 Created` | Resource created | Not commonly used in the current controllers |
-| `204 No Content` | Delete or action succeeded with no body | Delete endpoints |
-| `400 Bad Request` | Validation or rule failure | Missing fields, invalid month, duplicate budget |
-| `401 Unauthorized` | Missing or invalid token | No token, expired token, bad credentials |
-| `404 Not Found` | Resource not found in current scope | Wrong ID or cross-household lookup |
-| `500 Internal Server Error` | Unexpected server failure | Unhandled server-side issue |
+| `200 OK` | Request succeeded | Any successful read, update, or action |
+| `201 Created` | Resource created | Not commonly returned from current endpoints; most use `200` |
+| `204 No Content` | Delete succeeded | Successful DELETE requests |
+| `400 Bad Request` | Validation failed | Missing/invalid fields, duplicate budget, invalid month |
+| `401 Unauthorized` | Token missing or invalid | No token, expired token, bad credentials |
+| `404 Not Found` | Resource not found | Wrong ID, or resource belongs to a different household |
+| `500 Error` | Server error | Unhandled exception (rare in normal use) |
 
-## Endpoint Groups
+## Endpoint Reference
 
 ### Auth
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
 | `POST` | `/api/auth/register` | No | Create a user and initial household |
-| `POST` | `/api/auth/login` | No | Return a JWT token and current user |
-| `GET` | `/api/auth/me` | Yes | Return the authenticated user |
+| `POST` | `/api/auth/login` | No | Log in and receive a JWT token |
+| `GET` | `/api/auth/me` | Yes | Get the authenticated user |
 
-### Household and Categories
-
-| Method | Route | Auth | Purpose |
-|---|---|---|---|
-| `GET` | `/api/households` | Yes | Get the current household |
-| `GET` | `/api/households/members` | Yes | Get members of the current household |
-| `GET` | `/api/categories` | Yes | List default and household-specific categories |
-| `GET` | `/api/categories/{id}` | Yes | Get one category |
-| `POST` | `/api/categories` | Yes | Create a household category |
-| `PUT` | `/api/categories/{id}` | Yes | Update a household category |
-| `DELETE` | `/api/categories/{id}` | Yes | Delete a household category |
-
-### Transactions and Budgets
+### Household
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
-| `GET` | `/api/expenses` | Yes | List household expenses |
-| `GET` | `/api/expenses/{id}` | Yes | Get one expense |
+| `GET` | `/api/households` | Yes | Get your household details |
+| `GET` | `/api/households/members` | Yes | Get household members (all users in your household) |
+
+### Categories
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/categories` | Yes | List system and household categories |
+| `GET` | `/api/categories/{id}` | Yes | Get a specific category |
+| `POST` | `/api/categories` | Yes | Create a household-specific category |
+| `PUT` | `/api/categories/{id}` | Yes | Update a category |
+| `DELETE` | `/api/categories/{id}` | Yes | Delete a category |
+
+### Expenses
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/expenses` | Yes | List expenses |
+| `GET` | `/api/expenses/{id}` | Yes | Get a specific expense |
 | `POST` | `/api/expenses` | Yes | Create an expense |
 | `PUT` | `/api/expenses/{id}` | Yes | Update an expense |
 | `DELETE` | `/api/expenses/{id}` | Yes | Delete an expense |
-| `GET` | `/api/income` | Yes | List household income entries |
-| `GET` | `/api/income/{id}` | Yes | Get one income entry |
+
+### Income
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/income` | Yes | List income entries |
+| `GET` | `/api/income/{id}` | Yes | Get a specific income entry |
 | `POST` | `/api/income` | Yes | Create an income entry |
 | `PUT` | `/api/income/{id}` | Yes | Update an income entry |
 | `DELETE` | `/api/income/{id}` | Yes | Delete an income entry |
+
+### Budgets
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
 | `GET` | `/api/budgets` | Yes | List budgets |
-| `GET` | `/api/budgets/{id}` | Yes | Get one budget |
-| `POST` | `/api/budgets` | Yes | Create a monthly budget |
+| `GET` | `/api/budgets/{id}` | Yes | Get a specific budget |
+| `POST` | `/api/budgets` | Yes | Create a monthly budget for a category |
 | `PUT` | `/api/budgets/{id}` | Yes | Update a budget |
 | `DELETE` | `/api/budgets/{id}` | Yes | Delete a budget |
 
-### Bills and Savings
+Note: One budget per household + category + month. Duplicate attempts return `400`.
+
+### Bills
 
 | Method | Route | Auth | Purpose |
 |---|---|---|---|
 | `GET` | `/api/bills` | Yes | List bills |
-| `GET` | `/api/bills/upcoming` | Yes | List upcoming unpaid bills |
-| `GET` | `/api/bills/{id}` | Yes | Get one bill |
+| `GET` | `/api/bills/upcoming` | Yes | List unpaid bills with upcoming due dates |
+| `GET` | `/api/bills/{id}` | Yes | Get a specific bill |
 | `POST` | `/api/bills` | Yes | Create a bill |
 | `PUT` | `/api/bills/{id}` | Yes | Update a bill |
 | `DELETE` | `/api/bills/{id}` | Yes | Delete a bill |
 | `POST` | `/api/bills/{id}/pay` | Yes | Mark a bill as paid |
+
+### Savings Goals
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
 | `GET` | `/api/savings-goals` | Yes | List savings goals |
-| `GET` | `/api/savings-goals/{id}` | Yes | Get one savings goal |
-| `POST` | `/api/savings-goals` | Yes | Create a savings goal |
-| `PUT` | `/api/savings-goals/{id}` | Yes | Update a savings goal |
-| `DELETE` | `/api/savings-goals/{id}` | Yes | Delete a savings goal |
+| `GET` | `/api/savings-goals/{id}` | Yes | Get a specific goal |
+| `POST` | `/api/savings-goals` | Yes | Create a goal |
+| `PUT` | `/api/savings-goals/{id}` | Yes | Update a goal |
+| `DELETE` | `/api/savings-goals/{id}` | Yes | Delete a goal |
+
+### Goal Contributions
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
 | `GET` | `/api/goals/{goalId}/contributions` | Yes | List contributions for a goal |
-| `GET` | `/api/goals/{goalId}/contributions/{id}` | Yes | Get one contribution |
+| `GET` | `/api/goals/{goalId}/contributions/{id}` | Yes | Get a specific contribution |
 | `POST` | `/api/goals/{goalId}/contributions` | Yes | Create a contribution |
 | `PUT` | `/api/goals/{goalId}/contributions/{id}` | Yes | Update a contribution |
 | `DELETE` | `/api/goals/{goalId}/contributions/{id}` | Yes | Delete a contribution |
 
 ### Dashboard
 
-| Method | Route | Auth | Purpose |
+| Method | Route | Auth | Parameters |
 |---|---|---|---|
-| `GET` | `/api/dashboard/summary` | Yes | Return month-based summary data |
+| `GET` | `/api/dashboard/summary` | Yes | `year` (int), `month` (int, 1-12) |
 
-Query parameters for `GET /api/dashboard/summary`:
-
-| Parameter | Type | Required | Notes |
-|---|---|---|---|
-| `year` | integer | No | Defaults to current year |
-| `month` | integer | No | Defaults to current month and must be between 1 and 12 |
+Returns summary data for the selected period.
 
 ## Examples
 
-### Register a user
+### Register and log in
 
 ```http
 POST /api/auth/register
 Content-Type: application/json
-```
 
-```json
 {
-  "email": "jane@example.com",
-  "password": "SecurePassword123!",
-  "firstName": "Jane",
+  "email": "alice@example.com",
+  "password": "SecurePass123!",
+  "firstName": "Alice",
   "lastName": "Smith",
   "householdName": "Smith Household"
 }
 ```
 
-Example success response:
-
+Response:
 ```json
 {
-  "token": "<jwt-token>",
-  "expiresIn": 86400,
+  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
+  "expiresIn": 3600,
   "user": {
     "id": 1,
-    "email": "jane@example.com",
-    "firstName": "Jane",
+    "email": "alice@example.com",
+    "firstName": "Alice",
     "lastName": "Smith",
     "householdId": 1
   }
@@ -176,33 +269,30 @@ Example success response:
 
 ```http
 POST /api/expenses
-Authorization: Bearer <jwt-token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 Content-Type: application/json
-```
 
-```json
 {
-  "amount": 42.50,
-  "description": "Groceries",
-  "isShared": true,
-  "date": "2026-03-20T18:30:00Z",
-  "categoryId": 3
+  "amount": 45.99,
+  "description": "Grocery shopping",
+  "categoryId": 2,
+  "date": "2026-03-20T18:00:00Z",
+  "isShared": true
 }
 ```
 
-Example response shape:
-
+Response:
 ```json
 {
-  "id": 14,
-  "amount": 42.50,
-  "description": "Groceries",
-  "isShared": true,
-  "date": "2026-03-20T18:30:00Z",
-  "categoryId": 3,
+  "id": 42,
+  "amount": 45.99,
+  "description": "Grocery shopping",
+  "categoryId": 2,
   "categoryName": "Groceries",
+  "date": "2026-03-20T18:00:00Z",
+  "isShared": true,
   "paidByUserId": 1,
-  "paidByUserName": "Jane Smith"
+  "paidByUserName": "Alice Smith"
 }
 ```
 
@@ -210,18 +300,21 @@ Example response shape:
 
 ```http
 GET /api/dashboard/summary?year=2026&month=3
-Authorization: Bearer <jwt-token>
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
 ```
 
-Example response shape:
-
+Response:
 ```json
 {
-  "totalIncome": 4200.00,
-  "totalExpenses": 1750.50,
-  "netAmount": 2449.50,
-  "budgetUsage": [],
-  "upcomingBills": [],
+  "totalIncome": 5000.00,
+  "totalExpenses": 2150.75,
+  "netAmount": 2849.25,
+  "budgetUsage": [
+    { "categoryId": 2, "categoryName": "Groceries", "budgeted": 600, "spent": 410 }
+  ],
+  "upcomingBills": [
+    { "id": 1, "description": "Internet", "amount": 79.99, "dueDate": "2026-03-25" }
+  ],
   "recentTransactions": [],
   "savingsProgress": []
 }
@@ -229,10 +322,12 @@ Example response shape:
 
 ## Developer Notes
 
-- Do not send `householdId` in request bodies. Household scope is derived from JWT claims.
-- The register and login endpoints currently return `200 OK` in the controller implementation, even though many APIs use `201 Created` for registration.
-- The fastest way to inspect full request and response contracts is still Swagger at `http://localhost:5000/swagger`.
-- DTO source files live under `backend/DTOs/` and are the best code-level reference for response shapes.
+- **Household scope:** Never send `householdId` in request bodies. The backend derives it from your JWT token. If you try to send it, it will be ignored.
+- **404 vs 403:** Cross-household access attempts return `404`, not `403`. This prevents endpoint enumeration attacks.
+- **Token storage:** The frontend stores tokens in local storage. In production, consider more secure alternatives.
+- **Swagger:** Best way to explore and test endpoints interactively. Available at `http://localhost:5000/swagger` when the backend is running in Development mode.
+- **DTO source files:** `backend/DTOs/` contains C# classes that define request and response shapes. These are the source of truth.
+- **Validation errors:** `400 Bad Request` responses include details about which fields failed and why.
 
 ## Related Pages
 
