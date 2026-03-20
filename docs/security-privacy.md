@@ -1,30 +1,75 @@
 # Security and Privacy
 
-<p class="page-intro">This page outlines the current protection model for authentication, data isolation, and operational security controls.</p>
+This page describes the current security baseline for authentication, authorization, data isolation, and operational safeguards in Household Budget Planner.
 
-## Security Objectives
-- Ensure authenticated access to protected financial resources.
-- Enforce household-level data boundaries.
-- Protect credentials and token flows.
+## Quick Links
+
+- [Security Goals](#security-goals)
+- [Implemented Controls](#implemented-controls)
+- [Household Isolation Model](#household-isolation-model)
+- [Data and Privacy Notes](#data-and-privacy-notes)
+- [Gaps and Recommended Next Controls](#gaps-and-recommended-next-controls)
+
+## Security Goals
+
+- allow only authenticated users to access protected finance data
+- ensure users can only access records in their own household
+- protect credentials and JWT signing secrets
+- avoid leaking internal server details through API responses
 
 ## Implemented Controls
-- JWT bearer authentication for protected API routes.
-- Claims-based user and household context extraction.
-- BCrypt password hashing with work factor 12.
-- Global exception middleware to avoid inconsistent error handling.
+
+| Control | Current implementation |
+|---|---|
+| Authentication | JWT bearer token on protected endpoints |
+| Password storage | BCrypt hashing with work factor 12 |
+| Authorization context | Household and user claims extracted from JWT |
+| Data scoping | Service-layer household filtering |
+| Error handling | Global exception middleware for consistent responses |
+| CORS | Configured allowed origins for frontend clients |
 
 ## Household Isolation Model
-- User access is constrained to their assigned household.
-- Services apply household filters before returning or mutating data.
-- Cross-household data access is rejected.
 
-## Data Handling Notes
-- Financial records are persisted in PostgreSQL.
-- API contracts use DTO boundaries to avoid exposing entity internals.
-- Development and production settings are separated in appsettings files.
+Household isolation is the most important authorization rule in this project.
 
-## Operational Recommendations
-- Store production JWT secrets in secure secret management.
-- Enforce HTTPS in production environments.
-- Add rate limiting and audit logging for sensitive operations.
-- Expand security-focused integration testing before broad release.
+Authentication uses JWT bearer tokens. Household scope is derived from JWT claims. Clients must not send `householdId` in request bodies.
+
+- each user belongs to one household
+- protected services filter by household context from claims
+- requests cannot switch household scope using request body fields
+- cross-household access is rejected by design
+
+## Data and Privacy Notes
+
+| Area | Current approach |
+|---|---|
+| Data storage | Financial records are persisted in PostgreSQL |
+| API contract safety | DTO boundaries reduce accidental entity data exposure |
+| Configuration separation | Development and production settings are separated |
+| Secrets | Intended to be environment-managed, not hard-coded |
+
+Privacy scope in the current baseline:
+
+- data is household-scoped, not globally shared
+- no third-party banking integrations are active
+- no external analytics pipeline is described in the current implementation docs
+
+## Gaps and Recommended Next Controls
+
+These controls are recommended before broad production exposure.
+
+| Priority | Recommendation | Why it matters |
+|---|---|---|
+| High | Enforce HTTPS end to end | Protects credentials and tokens in transit |
+| High | Keep JWT secrets in secure environment storage | Prevents accidental secret leakage |
+| High | Restrict CORS to trusted frontend origins | Reduces cross-origin attack surface |
+| Medium | Add rate limiting on auth endpoints | Reduces brute-force and abuse risk |
+| Medium | Add audit logging for sensitive actions | Improves traceability and incident response |
+| Medium | Expand integration tests for auth and household isolation | Prevents security regressions |
+
+## Related Pages
+
+- [Architecture](./architecture.html)
+- [API Reference](./api-reference.html)
+- [Deployment](./deployment.html)
+- [Testing](./testing.html)

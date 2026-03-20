@@ -1,96 +1,101 @@
 # Roadmap
 
-<p class="page-intro">What is implemented, what is in progress, and what is planned next — organized by phase.</p>
+This roadmap shows what is complete, what is actively being worked on, and what is planned next. It is written to make the delivery state easy to scan without having to infer progress from scattered notes.
 
-## Phase Summary
+## Quick Links
 
-<div class="status-summary-grid">
-	<article class="status-card status-done">
-		<div class="status-label">Phase 1 — Backend</div>
-		<div class="status-value">Complete</div>
-		<p>Full backend API implemented. Database schema deployed. Auth and all financial modules operational.</p>
-	</article>
-	<article class="status-card status-progress">
-		<div class="status-label">Phase 2 — Frontend</div>
-		<div class="status-value">In Progress</div>
-		<p>Frontend integration underway. Auth infrastructure is the current priority before feature screens.</p>
-	</article>
-	<article class="status-card status-planned">
-		<div class="status-label">Phase 3 — Quality &amp; Growth</div>
-		<div class="status-value">Planned</div>
-		<p>Testing, analytics enhancements, production hardening, and strategic capabilities.</p>
-	</article>
-</div>
+- [Status Summary](#status-summary)
+- [Complete](#complete)
+- [In Progress](#in-progress)
+- [Planned](#planned)
+- [Long-Term Direction](#long-term-direction)
 
----
+## Status Summary
 
-## Phase 1 — Backend Foundation
+| Workstream | Status | Summary |
+|---|---|---|
+| Backend foundation | Complete | Core API, data model, auth, and database setup are in place |
+| Frontend application | In progress | App shell and auth exist; broader feature wiring is still underway |
+| Quality and release hardening | Planned | Test coverage, operational readiness, and production safeguards are next |
 
-<span class="badge badge-done">Complete</span>
+> Current status: Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned.
 
-| Deliverable | Status |
+## Complete
+
+### Backend and platform baseline
+
+| Item | Notes |
 |---|---|
-| Project scaffolding — backend and frontend | <span class="badge badge-done">Done</span> |
-| ASP.NET Core API structure (controllers, services, DTOs, middleware) | <span class="badge badge-done">Done</span> |
-| PostgreSQL schema and Entity Framework Core migrations | <span class="badge badge-done">Done</span> |
-| Auth module — register, login, JWT token issuance | <span class="badge badge-done">Done</span> |
-| Household scoping enforced across all modules | <span class="badge badge-done">Done</span> |
-| Categories module — system defaults and household-custom | <span class="badge badge-done">Done</span> |
-| Expenses module — full CRUD | <span class="badge badge-done">Done</span> |
-| Income module — full CRUD | <span class="badge badge-done">Done</span> |
-| Budgets module — full CRUD with uniqueness constraint | <span class="badge badge-done">Done</span> |
-| Bills module — full CRUD and payment action | <span class="badge badge-done">Done</span> |
-| Savings Goals module — full CRUD | <span class="badge badge-done">Done</span> |
-| Goal Contributions module — full CRUD | <span class="badge badge-done">Done</span> |
-| Dashboard summary endpoint with period filtering | <span class="badge badge-done">Done</span> |
-| Global exception middleware | <span class="badge badge-done">Done</span> |
-| Startup default category seeding | <span class="badge badge-done">Done</span> |
+| Project scaffolding | Backend and frontend repositories are set up |
+| API structure | Controllers, services, DTOs, and middleware are in place |
+| PostgreSQL schema | Entity Framework Core migrations are created and applied |
+| Authentication | Register, login, and current-user endpoints are implemented |
+| Household isolation | Household scoping is enforced across protected modules |
+| Categories | Default and household-specific categories are supported |
+| Expenses | Full CRUD is implemented |
+| Income | Full CRUD is implemented |
+| Budgets | Full CRUD with uniqueness rules is implemented |
+| Bills | Full CRUD and bill payment action are implemented |
+| Savings goals | Full CRUD is implemented |
+| Goal contributions | Full CRUD is implemented |
+| Dashboard summary | Month-based summary endpoint is implemented |
+| Seed data | Default categories are seeded on startup |
 
----
+## In Progress
 
-## Phase 2 — Frontend Integration
+### Frontend delivery
 
-<span class="badge badge-progress">In Progress</span>
-
-| Deliverable | Status |
+| Item | Current state |
 |---|---|
-| API client with automatic token injection | <span class="badge badge-progress">In Progress</span> |
-| Auth service — login, register, token storage | <span class="badge badge-progress">In Progress</span> |
-| AuthContext + PrivateRoute route protection | <span class="badge badge-progress">In Progress</span> |
-| Dashboard page bound to `/api/dashboard/summary` | <span class="badge badge-planned">Planned</span> |
-| Expenses CRUD screens | <span class="badge badge-planned">Planned</span> |
-| Income CRUD screens | <span class="badge badge-planned">Planned</span> |
-| Budgets CRUD screens | <span class="badge badge-planned">Planned</span> |
-| Bills CRUD screens with payment action | <span class="badge badge-planned">Planned</span> |
-| Savings Goals screens | <span class="badge badge-planned">Planned</span> |
-| Loading, error, and empty states across all screens | <span class="badge badge-planned">Planned</span> |
-| Frontend TypeScript types aligned to backend DTOs | <span class="badge badge-planned">Planned</span> |
+| Public landing page | Implemented |
+| Login and registration pages | Implemented |
+| Auth context and token persistence | Implemented |
+| Protected routing | Implemented |
+| Shared API client | Implemented, but environment configuration should be standardized |
+| Dashboard integration | Partial |
+| Transactions, budget, bills, savings, household, and settings pages | Present as feature areas, with additional API wiring still needed |
+| UX states | Loading, error, and empty states need broader consistency |
 
----
+### Active priorities
 
-## Phase 3 — Quality and Enhancement
+1. align frontend environment configuration with the documented backend URL
+2. complete feature-level API integration for existing pages
+3. improve UX resilience around auth expiry, failures, and empty data states
 
-<span class="badge badge-planned">Planned</span>
+## Planned
 
-| Deliverable | Status |
+### Quality and release readiness
+
+| Item | Why it matters |
 |---|---|
-| Backend unit tests for service layer | <span class="badge badge-planned">Planned</span> |
-| Frontend component and integration tests | <span class="badge badge-planned">Planned</span> |
-| End-to-end test coverage for critical paths | <span class="badge badge-planned">Planned</span> |
-| Health check endpoint | <span class="badge badge-planned">Planned</span> |
-| Production deployment configuration hardening | <span class="badge badge-planned">Planned</span> |
-| Richer dashboard analytics — trend indicators and charts | <span class="badge badge-planned">Planned</span> |
-| Budget variance reporting and monthly forecasting | <span class="badge badge-planned">Planned</span> |
-| Monitoring and alerting integration | <span class="badge badge-planned">Planned</span> |
-| Reporting exports (PDF / CSV) | <span class="badge badge-planned">Planned</span> |
+| Backend automated tests | Protects service rules and household isolation |
+| Frontend tests | Protects auth flow and navigation behavior |
+| End-to-end coverage | Verifies critical workflows across the whole stack |
+| Health checks | Improves production monitoring |
+| Deployment hardening | Reduces release risk |
+| Better operational guidance | Makes the project easier to assess and deploy |
 
----
+### Product and UX expansion
+
+| Item | Why it matters |
+|---|---|
+| Richer dashboard insights | Makes the app more useful for monthly review |
+| Budget variance and forecasting | Improves planning value |
+| Reporting exports | Supports sharing and record keeping |
+| Monitoring and alerting | Supports reliability in hosted environments |
 
 ## Long-Term Direction
 
-These are directional goals beyond Phase 3, not committed deliverables:
+These items are possible future directions, not current delivery commitments.
 
-- Integration with external financial data providers (open banking / CSV import)
-- Mobile-first client — after web feature parity is complete
-- Multi-household membership per user
-- Audit history views and financial reporting archives
+- bank or CSV import integrations
+- mobile-first client experience after web feature parity
+- multi-household membership for a single user
+- audit history and richer reporting archives
+
+## Related Pages
+
+- [Business Overview](./business-overview.html)
+- [Frontend Guide](./frontend-guide.html)
+- [Deployment](./deployment.html)
+- [Testing](./testing.html)

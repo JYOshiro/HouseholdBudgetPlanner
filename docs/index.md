@@ -1,141 +1,107 @@
-<div class="top-banner">
-	<span><strong>Household Budget Planner</strong> — Documentation</span>
-	<span class="banner-links">
-		<a href="https://github.com/JYOshiro/HouseholdBudgetPlanner" target="_blank" rel="noopener">View Repository</a>
-		<a href="https://jyoshiro.github.io/HouseholdBudgetPlanner/" target="_blank" rel="noopener">Project Site</a>
-	</span>
-</div>
+# Household Budget Planner
 
-<section class="hero">
-	<h1>Household Budget Planner</h1>
-	<p class="hero-tagline">A shared household finance platform — track income, expenses, budgets, bills, and savings goals, all in one place.</p>
-	<div class="hero-tags">
-		<span class="tech-tag">ASP.NET Core 9</span>
-		<span class="tech-tag">React 18 + TypeScript</span>
-		<span class="tech-tag">PostgreSQL</span>
-		<span class="tech-tag">JWT Auth</span>
-		<span class="tech-tag">Vite + Tailwind</span>
-	</div>
-</section>
+Shared household budgeting and finance tracking for income, expenses, bills, budgets, and savings goals.
 
-<div class="status-summary-grid">
-	<article class="status-card status-done">
-		<div class="status-label">Backend API</div>
-		<div class="status-value">Implemented</div>
-		<p>All core modules operational — auth, expenses, income, budgets, bills, savings goals, and dashboard.</p>
-	</article>
-	<article class="status-card status-progress">
-		<div class="status-label">Frontend</div>
-		<div class="status-value">In Progress</div>
-		<p>Project foundation in place. Feature-level API integration is the current delivery track.</p>
-	</article>
-	<article class="status-card status-done">
-		<div class="status-label">Database</div>
-		<div class="status-value">Migrated</div>
-		<p>PostgreSQL schema deployed. Migrations and startup category seeding are operational.</p>
-	</article>
-</div>
+This documentation is the main entry point for the project. It is designed for stakeholders, developers, and reviewers who need a clear view of what the app does, what has already been built, and where to look next.
 
-## What Is This?
+## Quick Links
 
-Household Budget Planner is a web application for shared household finance management. Household members can record and review all financial activity — income, spending, recurring bills, monthly budgets, and savings goals — through a single authenticated interface.
+- [Start Here](#start-here)
+- [Documentation Map](#documentation-map)
+- [Current Status](#current-status)
+- [What Is Implemented](#what-is-implemented)
+- [Key Links](#key-links)
 
-All financial data is scoped per household, providing clear data isolation between separate households. The backend API is fully implemented. The frontend is in active development.
+> Current status: Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned. See the [Roadmap](./roadmap.html) for details.
 
-**At a glance:**
-- Built for shared household budgeting and financial tracking
-- Backend API is implemented and available for integration
-- Frontend feature integration is currently in progress
+## What This App Is
 
-## Where to Start
+Household Budget Planner is a shared finance platform for small households such as couples, families, or flatmates. It gives one household a single place to manage day-to-day financial activity instead of splitting information across spreadsheets, notes, and banking apps.
 
-<div class="audience-grid">
-	<article class="audience-card">
-		<h3>Stakeholders &amp; Assessors</h3>
-		<p>Understand the product scope, delivery status, and what has been built.</p>
-		<ul class="link-list">
-			<li><a href="./business-overview.html">Business Overview</a></li>
-			<li><a href="./roadmap.html">Roadmap</a></li>
-			<li><a href="./faq.html">FAQ</a></li>
-		</ul>
-	</article>
-	<article class="audience-card">
-		<h3>Developers</h3>
-		<p>Set up the project, explore the API, and understand the codebase.</p>
-		<ul class="link-list">
-			<li><a href="./getting-started.html">Getting Started</a></li>
-			<li><a href="./api-reference.html">API Reference</a></li>
-			<li><a href="./frontend-guide.html">Frontend Guide</a></li>
-		</ul>
-	</article>
-	<article class="audience-card">
-		<h3>Technical Reviewers</h3>
-		<p>Review architecture decisions, security approach, and quality posture.</p>
-		<ul class="link-list">
-			<li><a href="./architecture.html">Architecture</a></li>
-			<li><a href="./security-privacy.html">Security &amp; Privacy</a></li>
-			<li><a href="./testing.html">Testing</a></li>
-		</ul>
-	</article>
-</div>
+The platform supports:
 
-## Documentation
+- expense tracking
+- income tracking
+- monthly budgets by category
+- recurring bill management
+- savings goals and contributions
+- household-scoped dashboards and summaries
 
-<div class="doc-grid">
-	<article class="doc-card">
-		<h3><a href="./business-overview.html">Business Overview</a></h3>
-		<p>Product goals, target users, in-scope features, and current delivery status.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./getting-started.html">Getting Started</a></h3>
-		<p>Set up the project locally — prerequisites, configuration, and first run.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./architecture.html">Architecture</a></h3>
-		<p>System structure, component roles, design decisions, and data model.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./api-reference.html">API Reference</a></h3>
-		<p>All implemented endpoints grouped by module, with auth and usage notes.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./frontend-guide.html">Frontend Guide</a></h3>
-		<p>Frontend structure, integration approach, token handling, and known gaps.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./deployment.html">Deployment</a></h3>
-		<p>Configuration, environment variables, deployment steps, and release checklist.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./roadmap.html">Roadmap</a></h3>
-		<p>What is implemented, what is in progress, and what is planned next.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./security-privacy.html">Security &amp; Privacy</a></h3>
-		<p>Authentication controls, authorization model, and data isolation approach.</p>
-	</article>
-	<article class="doc-card">
-		<h3><a href="./testing.html">Testing</a></h3>
-		<p>Current test posture and recommended quality gates.</p>
-	</article>
-</div>
+## Start Here
 
-## Quick Reference
+| If you are... | Start with | Why |
+|---|---|---|
+| New to the project | [Business Overview](./business-overview.html) | Understand the product problem, target users, and scope |
+| A developer setting up locally | [Getting Started](./getting-started.html) | Install dependencies, configure the backend, and run the app |
+| Working on the UI | [Frontend Guide](./frontend-guide.html) | Review frontend structure, auth flow, and integration priorities |
+| Working on backend integration | [API Reference](./api-reference.html) | Find endpoints, auth rules, and example requests |
+| Reviewing technical design | [Architecture](./architecture.html) | See the system layout, responsibilities, and design decisions |
+| Assessing progress | [Roadmap](./roadmap.html) | Check what is complete, in progress, and planned |
+| Reviewing controls and quality | [Security and Privacy](./security-privacy.html) and [Testing](./testing.html) | See the current security posture and test coverage guidance |
+
+## Documentation Map
+
+| Page | Purpose | Primary Audience |
+|---|---|---|
+| [Business Overview](./business-overview.html) | Product context, users, business value, scope, and success criteria | Stakeholders, assessors |
+| [Getting Started](./getting-started.html) | Local setup, prerequisites, and first-run verification | Developers |
+| [Architecture](./architecture.html) | System overview, component responsibilities, and key design choices | Developers, reviewers |
+| [API Reference](./api-reference.html) | Auth model, endpoint groups, examples, and status codes | Developers |
+| [Frontend Guide](./frontend-guide.html) | Frontend structure, backend integration approach, and current gaps | Frontend developers |
+| [Deployment](./deployment.html) | Environment setup, deployment flow, and release checklist | Developers, reviewers |
+| [Roadmap](./roadmap.html) | Delivery status across complete, in-progress, and planned work | Stakeholders, team members |
+
+## Current Status
+
+| Area | Status | Notes |
+|---|---|---|
+| Backend API | Complete | Core modules are implemented and exposed through REST endpoints |
+| Database | Complete | PostgreSQL schema, migrations, and category seeding are in place |
+| Authentication | Complete | Register, login, JWT issuance, and current-user lookup are working |
+| Frontend shell | In progress | Routing, auth context, route protection, and feature pages exist |
+| Frontend feature integration | In progress | Screens still need broader API wiring, refinement, and validation |
+| Production hardening | Planned | Expanded tests, operational checks, and deployment safeguards remain |
+
+## What Is Implemented
+
+The current backend supports the main household finance workflows:
+
+- household-scoped authentication
+- categories
+- expenses
+- income
+- budgets
+- bills and bill payment tracking
+- savings goals and contributions
+- dashboard summaries by month
+
+The current frontend already includes:
+
+- a landing page
+- login and registration flows
+- auth context with token persistence
+- protected routing for app pages
+- feature areas for dashboard, transactions, budget, bills, savings, household, and settings
+
+## Key Links
 
 | Item | Value |
 |---|---|
-| Frontend (dev) | `http://localhost:5173` |
-| Backend API (dev) | `http://localhost:5000/api` |
-| Swagger UI (dev) | `http://localhost:5000/swagger` |
-| Database | PostgreSQL |
-| Auth model | JWT Bearer token |
-| Backend | ASP.NET Core 9.0 |
-| Frontend | React 18 + TypeScript + Vite |
+| Repository | [GitHub Repository](https://github.com/JYOshiro/HouseholdBudgetPlanner) |
+| Documentation site | [GitHub Pages Site](https://jyoshiro.github.io/HouseholdBudgetPlanner/) |
+| Frontend dev server | `http://localhost:5173` |
+| Backend API | `http://localhost:5000/api` |
+| Swagger UI | `http://localhost:5000/swagger` |
+| Backend stack | ASP.NET Core 9, Entity Framework Core, PostgreSQL |
+| Frontend stack | React 18, TypeScript, Vite |
+| Auth model | JWT bearer tokens |
 
-<div class="callout">
-<strong>Current status:</strong> Backend modules are implemented and operational. Frontend integration is in progress. See the <a href="./roadmap.html">Roadmap</a> for active priorities.
-</div>
+## Next Recommended Reads
+
+1. Read the [Business Overview](./business-overview.html) if you want the shortest route to product understanding.
+2. Read the [Getting Started](./getting-started.html) and [API Reference](./api-reference.html) if you plan to run or extend the system.
+3. Read the [Architecture](./architecture.html) and [Roadmap](./roadmap.html) if you are reviewing delivery quality and technical direction.
 
 ---
 
-*Documentation last updated: March 2026*
+Last updated: March 2026

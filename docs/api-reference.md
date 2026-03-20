@@ -1,310 +1,240 @@
 # API Reference
 
-<p class="page-intro">All implemented backend endpoints — grouped by module, with authentication details, descriptions, and common response codes. Use Swagger in development for full request/response schema inspection.</p>
+This page documents the current backend API in a format that is quick to scan and practical to use during development. For exact schemas, use Swagger alongside this page.
 
-**Quick links:**
+## Quick Links
+
+- [Base URLs](#base-urls)
 - [Authentication](#authentication)
-- [Common Status Codes](#common-status-codes)
-- [Endpoint Summary](#endpoint-summary)
-- [Auth](#auth)
-- [Households](#households)
-- [Categories](#categories)
-- [Expenses](#expenses)
-- [Income](#income)
-- [Budgets](#budgets)
-- [Bills](#bills)
-- [Savings Goals](#savings-goals)
-- [Goal Contributions](#goal-contributions)
-- [Dashboard](#dashboard)
+- [Status Codes](#status-codes)
+- [Endpoint Groups](#endpoint-groups)
+- [Examples](#examples)
+- [Developer Notes](#developer-notes)
 
-## Base URL
+## Base URLs
 
 | Environment | URL |
 |---|---|
-| Development API | `http://localhost:5000/api` |
-| Swagger UI (dev) | `http://localhost:5000/swagger` |
+| Local API | `http://localhost:5000/api` |
+| Local Swagger UI | `http://localhost:5000/swagger` |
+
+> The frontend HTTP client currently reads `VITE_API_URL` and falls back to `https://localhost:5001/api`. If you are developing locally against the documented backend URL, set `VITE_API_URL=http://localhost:5000/api` in the frontend environment.
 
 ## Authentication
 
-All endpoints except `/api/auth/register` and `/api/auth/login` require a Bearer token in the `Authorization` header:
+All endpoints require a bearer token except:
 
+- `POST /api/auth/register`
+- `POST /api/auth/login`
+
+Send the token in the request header:
+
+```http
+Authorization: Bearer <jwt-token>
 ```
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
-```
 
-**How to get a token:**
+Authentication uses JWT bearer tokens. Household scope is derived from JWT claims. Clients must not send `householdId` in request bodies.
 
-1. `POST /api/auth/register` — create an account (or use an existing one)
-2. `POST /api/auth/login` — submit email + password, receive `token` in the response
-3. Include the token in all subsequent requests as `Authorization: Bearer <token>`
+### Auth flow
 
-The token contains `userId`, `email`, and `householdId` claims. **Household scoping is enforced server-side** — the API uses the `householdId` from the token, not from request bodies or URL parameters.
+1. Register a user or log in.
+2. Read the `token` field from the response.
+3. Send that token on all protected requests.
+4. Use `GET /api/auth/me` to restore the current session.
 
-<div class="callout">
-<strong>Testing in Swagger:</strong> Click the <strong>Authorize</strong> button in Swagger UI and enter <code>Bearer &lt;your-token&gt;</code>. All subsequent requests will be authenticated automatically.
-</div>
+The token carries user and household context. The API derives household scope from JWT claims.
 
-## Common Status Codes
+> Swagger tip: use the `Authorize` button and enter `Bearer <token>` once. Swagger will then send it on protected requests automatically.
 
-| Code | Meaning |
-|---|---|
-| `200 OK` | Request succeeded — body contains the result |
-| `201 Created` | Resource successfully created |
-| `204 No Content` | Request succeeded — no response body |
-| `400 Bad Request` | Validation error or malformed request body |
-| `401 Unauthorized` | Missing or invalid bearer token |
-| `403 Forbidden` | Token valid but the operation is not permitted |
-| `404 Not Found` | Resource does not exist, or does not belong to the current household |
-| `500 Internal Server Error` | Unexpected server-side error |
+## Status Codes
 
-## Endpoint Summary
+| Code | Meaning | Typical cause |
+|---|---|---|
+| `200 OK` | Request succeeded | Read, update, or action endpoints |
+| `201 Created` | Resource created | Not commonly used in the current controllers |
+| `204 No Content` | Delete or action succeeded with no body | Delete endpoints |
+| `400 Bad Request` | Validation or rule failure | Missing fields, invalid month, duplicate budget |
+| `401 Unauthorized` | Missing or invalid token | No token, expired token, bad credentials |
+| `404 Not Found` | Resource not found in current scope | Wrong ID or cross-household lookup |
+| `500 Internal Server Error` | Unexpected server failure | Unhandled server-side issue |
 
-| Module | Method | Route | Auth |
+## Endpoint Groups
+
+### Auth
+
+| Method | Route | Auth | Purpose |
 |---|---|---|---|
-| Auth | <span class="method method-post">POST</span> | `/api/auth/register` | No |
-| Auth | <span class="method method-post">POST</span> | `/api/auth/login` | No |
-| Auth | <span class="method method-get">GET</span> | `/api/auth/me` | Yes |
-| Households | <span class="method method-get">GET</span> | `/api/households` | Yes |
-| Households | <span class="method method-get">GET</span> | `/api/households/members` | Yes |
-| Categories | <span class="method method-get">GET</span> | `/api/categories` | Yes |
-| Categories | <span class="method method-post">POST</span> | `/api/categories` | Yes |
-| Categories | <span class="method method-get">GET</span> | `/api/categories/{id}` | Yes |
-| Categories | <span class="method method-put">PUT</span> | `/api/categories/{id}` | Yes |
-| Categories | <span class="method method-delete">DELETE</span> | `/api/categories/{id}` | Yes |
-| Expenses | <span class="method method-get">GET</span> | `/api/expenses` | Yes |
-| Expenses | <span class="method method-post">POST</span> | `/api/expenses` | Yes |
-| Expenses | <span class="method method-get">GET</span> | `/api/expenses/{id}` | Yes |
-| Expenses | <span class="method method-put">PUT</span> | `/api/expenses/{id}` | Yes |
-| Expenses | <span class="method method-delete">DELETE</span> | `/api/expenses/{id}` | Yes |
-| Income | <span class="method method-get">GET</span> | `/api/income` | Yes |
-| Income | <span class="method method-post">POST</span> | `/api/income` | Yes |
-| Income | <span class="method method-get">GET</span> | `/api/income/{id}` | Yes |
-| Income | <span class="method method-put">PUT</span> | `/api/income/{id}` | Yes |
-| Income | <span class="method method-delete">DELETE</span> | `/api/income/{id}` | Yes |
-| Budgets | <span class="method method-get">GET</span> | `/api/budgets` | Yes |
-| Budgets | <span class="method method-post">POST</span> | `/api/budgets` | Yes |
-| Budgets | <span class="method method-get">GET</span> | `/api/budgets/{id}` | Yes |
-| Budgets | <span class="method method-put">PUT</span> | `/api/budgets/{id}` | Yes |
-| Budgets | <span class="method method-delete">DELETE</span> | `/api/budgets/{id}` | Yes |
-| Bills | <span class="method method-get">GET</span> | `/api/bills` | Yes |
-| Bills | <span class="method method-post">POST</span> | `/api/bills` | Yes |
-| Bills | <span class="method method-get">GET</span> | `/api/bills/upcoming` | Yes |
-| Bills | <span class="method method-get">GET</span> | `/api/bills/{id}` | Yes |
-| Bills | <span class="method method-put">PUT</span> | `/api/bills/{id}` | Yes |
-| Bills | <span class="method method-delete">DELETE</span> | `/api/bills/{id}` | Yes |
-| Bills | <span class="method method-post">POST</span> | `/api/bills/{id}/pay` | Yes |
-| Savings Goals | <span class="method method-get">GET</span> | `/api/savings-goals` | Yes |
-| Savings Goals | <span class="method method-post">POST</span> | `/api/savings-goals` | Yes |
-| Savings Goals | <span class="method method-get">GET</span> | `/api/savings-goals/{id}` | Yes |
-| Savings Goals | <span class="method method-put">PUT</span> | `/api/savings-goals/{id}` | Yes |
-| Savings Goals | <span class="method method-delete">DELETE</span> | `/api/savings-goals/{id}` | Yes |
-| Goal Contributions | <span class="method method-get">GET</span> | `/api/goals/{goalId}/contributions` | Yes |
-| Goal Contributions | <span class="method method-post">POST</span> | `/api/goals/{goalId}/contributions` | Yes |
-| Goal Contributions | <span class="method method-get">GET</span> | `/api/goals/{goalId}/contributions/{id}` | Yes |
-| Goal Contributions | <span class="method method-put">PUT</span> | `/api/goals/{goalId}/contributions/{id}` | Yes |
-| Goal Contributions | <span class="method method-delete">DELETE</span> | `/api/goals/{goalId}/contributions/{id}` | Yes |
-| Dashboard | <span class="method method-get">GET</span> | `/api/dashboard/summary` | Yes |
+| `POST` | `/api/auth/register` | No | Create a user and initial household |
+| `POST` | `/api/auth/login` | No | Return a JWT token and current user |
+| `GET` | `/api/auth/me` | Yes | Return the authenticated user |
 
----
+### Household and Categories
 
-## Auth
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/households` | Yes | Get the current household |
+| `GET` | `/api/households/members` | Yes | Get members of the current household |
+| `GET` | `/api/categories` | Yes | List default and household-specific categories |
+| `GET` | `/api/categories/{id}` | Yes | Get one category |
+| `POST` | `/api/categories` | Yes | Create a household category |
+| `PUT` | `/api/categories/{id}` | Yes | Update a household category |
+| `DELETE` | `/api/categories/{id}` | Yes | Delete a household category |
 
-**Base route:** `/api/auth`
+### Transactions and Budgets
 
-### <span class="method method-post">POST</span> `/register`
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/expenses` | Yes | List household expenses |
+| `GET` | `/api/expenses/{id}` | Yes | Get one expense |
+| `POST` | `/api/expenses` | Yes | Create an expense |
+| `PUT` | `/api/expenses/{id}` | Yes | Update an expense |
+| `DELETE` | `/api/expenses/{id}` | Yes | Delete an expense |
+| `GET` | `/api/income` | Yes | List household income entries |
+| `GET` | `/api/income/{id}` | Yes | Get one income entry |
+| `POST` | `/api/income` | Yes | Create an income entry |
+| `PUT` | `/api/income/{id}` | Yes | Update an income entry |
+| `DELETE` | `/api/income/{id}` | Yes | Delete an income entry |
+| `GET` | `/api/budgets` | Yes | List budgets |
+| `GET` | `/api/budgets/{id}` | Yes | Get one budget |
+| `POST` | `/api/budgets` | Yes | Create a monthly budget |
+| `PUT` | `/api/budgets/{id}` | Yes | Update a budget |
+| `DELETE` | `/api/budgets/{id}` | Yes | Delete a budget |
 
-Register a new user account. A new Household is automatically created and linked to the user.
+### Bills and Savings
 
-**Auth required:** No
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/bills` | Yes | List bills |
+| `GET` | `/api/bills/upcoming` | Yes | List upcoming unpaid bills |
+| `GET` | `/api/bills/{id}` | Yes | Get one bill |
+| `POST` | `/api/bills` | Yes | Create a bill |
+| `PUT` | `/api/bills/{id}` | Yes | Update a bill |
+| `DELETE` | `/api/bills/{id}` | Yes | Delete a bill |
+| `POST` | `/api/bills/{id}/pay` | Yes | Mark a bill as paid |
+| `GET` | `/api/savings-goals` | Yes | List savings goals |
+| `GET` | `/api/savings-goals/{id}` | Yes | Get one savings goal |
+| `POST` | `/api/savings-goals` | Yes | Create a savings goal |
+| `PUT` | `/api/savings-goals/{id}` | Yes | Update a savings goal |
+| `DELETE` | `/api/savings-goals/{id}` | Yes | Delete a savings goal |
+| `GET` | `/api/goals/{goalId}/contributions` | Yes | List contributions for a goal |
+| `GET` | `/api/goals/{goalId}/contributions/{id}` | Yes | Get one contribution |
+| `POST` | `/api/goals/{goalId}/contributions` | Yes | Create a contribution |
+| `PUT` | `/api/goals/{goalId}/contributions/{id}` | Yes | Update a contribution |
+| `DELETE` | `/api/goals/{goalId}/contributions/{id}` | Yes | Delete a contribution |
 
-**Request body:**
+### Dashboard
+
+| Method | Route | Auth | Purpose |
+|---|---|---|---|
+| `GET` | `/api/dashboard/summary` | Yes | Return month-based summary data |
+
+Query parameters for `GET /api/dashboard/summary`:
+
+| Parameter | Type | Required | Notes |
+|---|---|---|---|
+| `year` | integer | No | Defaults to current year |
+| `month` | integer | No | Defaults to current month and must be between 1 and 12 |
+
+## Examples
+
+### Register a user
+
+```http
+POST /api/auth/register
+Content-Type: application/json
+```
+
 ```json
 {
-  "email": "user@example.com",
-  "password": "securePassword123",
-  "name": "Jane Smith",
+  "email": "jane@example.com",
+  "password": "SecurePassword123!",
+  "firstName": "Jane",
+  "lastName": "Smith",
   "householdName": "Smith Household"
 }
 ```
 
-**Returns:** `201 Created` — user profile and JWT token.
+Example success response:
 
----
-
-### <span class="method method-post">POST</span> `/login`
-
-Authenticate an existing user and return a JWT token.
-
-**Auth required:** No
-
-**Request body:**
 ```json
 {
-  "email": "user@example.com",
-  "password": "securePassword123"
+  "token": "<jwt-token>",
+  "expiresIn": 86400,
+  "user": {
+    "id": 1,
+    "email": "jane@example.com",
+    "firstName": "Jane",
+    "lastName": "Smith",
+    "householdId": 1
+  }
 }
 ```
 
-**Returns:** `200 OK` — includes `token`, `userId`, and `email`. Store the token for use in all subsequent requests.
+### Create an expense
 
----
+```http
+POST /api/expenses
+Authorization: Bearer <jwt-token>
+Content-Type: application/json
+```
 
-### <span class="method method-get">GET</span> `/me`
+```json
+{
+  "amount": 42.50,
+  "description": "Groceries",
+  "isShared": true,
+  "date": "2026-03-20T18:30:00Z",
+  "categoryId": 3
+}
+```
 
-Return the authenticated user's profile, including their `householdId`.
+Example response shape:
 
-**Auth required:** Yes
+```json
+{
+  "id": 14,
+  "amount": 42.50,
+  "description": "Groceries",
+  "isShared": true,
+  "date": "2026-03-20T18:30:00Z",
+  "categoryId": 3,
+  "categoryName": "Groceries",
+  "paidByUserId": 1,
+  "paidByUserName": "Jane Smith"
+}
+```
 
-**Returns:** `200 OK` — user details.
+### Get dashboard summary
 
----
+```http
+GET /api/dashboard/summary?year=2026&month=3
+Authorization: Bearer <jwt-token>
+```
 
-## Households
+Example response shape:
 
-**Base route:** `/api/households`
+```json
+{
+  "totalIncome": 4200.00,
+  "totalExpenses": 1750.50,
+  "netAmount": 2449.50,
+  "budgetUsage": [],
+  "upcomingBills": [],
+  "recentTransactions": [],
+  "savingsProgress": []
+}
+```
 
-The household is determined by the token — no `householdId` is needed in the URL.
+## Developer Notes
 
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | Returns the household name and details for the authenticated user |
-| <span class="method method-get">GET</span> | `/members` | Returns all users who belong to the same household |
+- Do not send `householdId` in request bodies. Household scope is derived from JWT claims.
+- The register and login endpoints currently return `200 OK` in the controller implementation, even though many APIs use `201 Created` for registration.
+- The fastest way to inspect full request and response contracts is still Swagger at `http://localhost:5000/swagger`.
+- DTO source files live under `backend/DTOs/` and are the best code-level reference for response shapes.
 
----
+## Related Pages
 
-## Categories
-
-**Base route:** `/api/categories`
-
-Categories classify expenses and budget entries. System-default categories (null `HouseholdId`) are visible to all households. Custom categories are household-specific.
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all categories available to the household (system defaults + custom) |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific category by ID |
-| <span class="method method-post">POST</span> | `/` | Create a custom category scoped to the current household |
-| <span class="method method-put">PUT</span> | `/{id}` | Update a household-owned category |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete a household-owned category |
-
----
-
-## Expenses
-
-**Base route:** `/api/expenses`
-
-Expense records are scoped to the authenticated user's household. The `householdId` is taken from the token — do not include it in the request body.
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all expenses for the household |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific expense by ID |
-| <span class="method method-post">POST</span> | `/` | Record a new expense |
-| <span class="method method-put">PUT</span> | `/{id}` | Update an existing expense |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete an expense |
-
----
-
-## Income
-
-**Base route:** `/api/income`
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all income records for the household |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific income record |
-| <span class="method method-post">POST</span> | `/` | Record a new income entry |
-| <span class="method method-put">PUT</span> | `/{id}` | Update an income record |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete an income record |
-
----
-
-## Budgets
-
-**Base route:** `/api/budgets`
-
-A budget defines a spending limit for a specific category in a specific calendar month. **One budget per household + category + month** — duplicate attempts will return `400`.
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all budgets for the household |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific budget |
-| <span class="method method-post">POST</span> | `/` | Create a monthly budget for a category |
-| <span class="method method-put">PUT</span> | `/{id}` | Update a budget's amount or period |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete a budget |
-
----
-
-## Bills
-
-**Base route:** `/api/bills`
-
-Bills track recurring payments with due dates and paid/unpaid status. The `/upcoming` route is useful for dashboard and notification features.
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all bills for the household |
-| <span class="method method-get">GET</span> | `/upcoming` | List unpaid bills with upcoming due dates |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific bill |
-| <span class="method method-post">POST</span> | `/` | Create a new recurring bill |
-| <span class="method method-put">PUT</span> | `/{id}` | Update bill details |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete a bill |
-| <span class="method method-post">POST</span> | `/{id}/pay` | Mark a bill as paid for the current period |
-
----
-
-## Savings Goals
-
-**Base route:** `/api/savings-goals`
-
-Savings goals have a target amount and an optional deadline. Total contributed amount is tracked via GoalContributions.
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all savings goals for the household |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific savings goal |
-| <span class="method method-post">POST</span> | `/` | Create a savings goal |
-| <span class="method method-put">PUT</span> | `/{id}` | Update a savings goal |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete a savings goal |
-
----
-
-## Goal Contributions
-
-**Base route:** `/api/goals/{goalId}/contributions`
-
-Contributions are deposits toward a savings goal. They are nested under the goal they belong to — always include the correct `goalId` in the path.
-
-| Method | Route | Description |
-|---|---|---|
-| <span class="method method-get">GET</span> | `/` | List all contributions for a savings goal |
-| <span class="method method-get">GET</span> | `/{id}` | Get a specific contribution |
-| <span class="method method-post">POST</span> | `/` | Record a new contribution toward the goal |
-| <span class="method method-put">PUT</span> | `/{id}` | Update a contribution record |
-| <span class="method method-delete">DELETE</span> | `/{id}` | Delete a contribution |
-
----
-
-## Dashboard
-
-**Base route:** `/api/dashboard`
-
-### <span class="method method-get">GET</span> `/summary`
-
-Returns a period-based aggregate summary of the household's financial position.
-
-**Auth required:** Yes
-
-**Query parameters:**
-
-| Parameter | Type | Description | Example |
-|---|---|---|---|
-| `year` | int | Calendar year | `2026` |
-| `month` | int | Calendar month (1–12) | `3` |
-
-**Returns:** `200 OK` — totals for income, expenses, budget utilisation, upcoming bills, and savings goal progress for the specified period.
-
----
-
-<div class="callout">
-<strong>Source of truth for schemas:</strong> Run the backend locally and open <code>http://localhost:5000/swagger</code> to browse full request/response schemas interactively. DTO source files are in <code>backend/DTOs/</code>.
-</div>
+- [Getting Started](./getting-started.html)
+- [Architecture](./architecture.html)
+- [Frontend Guide](./frontend-guide.html)
+- [Deployment](./deployment.html)

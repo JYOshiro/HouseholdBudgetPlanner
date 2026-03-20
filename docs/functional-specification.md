@@ -1,32 +1,49 @@
 # Functional Specification
 
-<p class="page-intro">This page defines functional scope, requirements, business rules, and acceptance criteria for implementation governance.</p>
+This page defines functional scope, core requirements, business rules, and acceptance criteria for the Household Budget Planner baseline.
 
-## 1. Objective
+## Quick Links
+
+- [Objective](#objective)
+- [Scope](#scope)
+- [Actors](#actors)
+- [Functional Requirements](#functional-requirements)
+- [Core Journeys](#core-journeys)
+- [Business Rules](#business-rules)
+- [Acceptance Criteria](#acceptance-criteria)
+
+## Objective
 Provide households with a centralized platform to track income, expenses, budgets, bills, and savings goals while maintaining clear household-level access controls and usable financial summaries.
 
-## 2. In-Scope Functional Domains
-- Authentication and user identity.
-- Household context and member visibility.
-- Category management (system and household custom categories).
-- Expense recording and maintenance.
-- Income recording and maintenance.
-- Budget planning by category and month.
-- Bill tracking and payment status updates.
-- Savings goal planning and contribution tracking.
-- Dashboard summary for financial overview.
+## Scope
 
-## 3. Out of Scope (Current Baseline)
-- Multi-household membership for a single user account.
-- Native mobile applications.
-- Automated bank account aggregation.
-- Advanced forecasting and predictive analytics.
+### In scope
 
-## 4. Actors
-- Household Member: Authenticated user with access to household-scoped financial data.
-- System: API and persistence layer enforcing business rules and data integrity.
+- authentication and user identity
+- household context and member visibility
+- category management (system and household custom categories)
+- expense recording and maintenance
+- income recording and maintenance
+- budget planning by category and month
+- bill tracking and payment status updates
+- savings goal planning and contribution tracking
+- dashboard summary for financial overview
 
-## 5. Functional Requirements
+### Out of scope for the current baseline
+
+- multi-household membership for one user account
+- native mobile applications
+- automated bank account aggregation
+- advanced forecasting and predictive analytics
+
+## Actors
+
+| Actor | Description |
+|---|---|
+| Household member | Authenticated user with access to household-scoped financial data |
+| System | API and persistence layer enforcing business rules and data integrity |
+
+## Functional Requirements
 
 ### FR-01 User Registration
 - The system shall allow a new user to register with credentials and household context.
@@ -40,7 +57,8 @@ Provide households with a centralized platform to track income, expenses, budget
 - The system shall provide a secure endpoint to return the current authenticated user profile.
 
 ### FR-04 Household Data Isolation
-- The system shall scope all protected financial data access to the authenticated user household.
+- The system shall derive household scope from JWT claims.
+- The system shall not accept `householdId` in request bodies for household scoping.
 
 ### FR-05 Category Management
 - The system shall list available categories for the user context.
@@ -71,7 +89,7 @@ Provide households with a centralized platform to track income, expenses, budget
 ### FR-12 Dashboard Summary
 - The system shall provide a summary endpoint including key metrics for a selected period.
 
-## 6. Core User Journeys
+## Core Journeys
 
 ### Journey A: New Household Onboarding
 1. User registers account.
@@ -90,22 +108,34 @@ Provide households with a centralized platform to track income, expenses, budget
 2. User adds contributions over time.
 3. User monitors progress from contributions and dashboard summaries.
 
-## 7. Business Rules
+## Business Rules
+
 - BR-01: All protected operations require authenticated access.
 - BR-02: Household member access is restricted to own household data.
 - BR-03: Email uniqueness is enforced for user identity.
 - BR-04: Budget uniqueness is enforced per household/category/month.
 - BR-05: Savings contributions must be linked to a valid goal.
 
-## 8. Non-Functional Considerations (Functional Impact)
-- Security: Token-based authorization and secure password storage.
-- Data Integrity: Referential constraints and uniqueness controls.
-- Usability: API-driven feature model intended for responsive web interfaces.
-- Maintainability: Service-oriented backend supports modular feature evolution.
+## Non-Functional Considerations
 
-## 9. Acceptance Criteria Snapshot
-- Users can register, log in, and retrieve profile context.
-- Authenticated users can perform CRUD operations for in-scope financial modules.
-- Dashboard summary returns period-based aggregate values.
-- Unauthorized and cross-household access attempts are rejected.
-- API contract is testable through Swagger in development mode.
+| Area | Requirement impact |
+|---|---|
+| Security | Token-based authorization and secure password storage are required |
+| Data integrity | Referential constraints and uniqueness controls are required |
+| Usability | API model supports responsive web interfaces |
+| Maintainability | Service-oriented backend supports modular feature growth |
+
+## Acceptance Criteria
+
+- users can register, log in, and retrieve profile context
+- authenticated users can perform CRUD operations for in-scope financial modules
+- dashboard summary returns period-based aggregate values
+- unauthorized and cross-household access attempts are rejected
+- API contracts are testable through Swagger in development mode
+
+## Related Pages
+
+- [Business Overview](./business-overview.html)
+- [Architecture](./architecture.html)
+- [API Reference](./api-reference.html)
+- [Technical Specification](./technical-specification.html)

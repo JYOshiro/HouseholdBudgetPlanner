@@ -1,88 +1,126 @@
 # Business Overview
 
-<p class="page-intro">Product goals, target users, problem context, in-scope features, and current delivery status — for stakeholders, assessors, and anyone new to the project.</p>
+Household Budget Planner is a shared budgeting and finance tracking platform for small households. This page explains the product problem, who it serves, what is in scope, and the current state of delivery.
 
-## The Problem
+## Quick Links
 
-Households often track finances across spreadsheets, banking apps, and paper — with no single place to see the whole picture. This makes it hard to:
+- [Problem Statement](#problem-statement)
+- [Who It Is For](#who-it-is-for)
+- [Product Value](#product-value)
+- [Scope Summary](#scope-summary)
+- [Current Status](#current-status)
+- [User Journeys](#user-journeys)
+- [Success Criteria](#success-criteria)
 
-- Know where money actually went each month
-- Set and stick to category-level spending budgets
-- Track recurring bills before they become overdue
-- Make progress toward shared savings goals
+## Problem Statement
 
-**Household Budget Planner** solves this by providing a single, shared platform for all household financial activity — accessible to everyone in the household, with a complete history and monthly summaries.
+Many households manage money across separate tools such as spreadsheets, banking apps, reminders, and chat messages. That makes even simple questions harder than they should be:
 
-**At a glance:**
-- One shared source of truth for household finances
-- Clear monthly visibility for spending, income, and bills
-- Structured progress tracking for savings goals
+- How much have we spent this month?
+- Are we still inside budget for groceries, utilities, or transport?
+- Which bills are due soon?
+- Are we making progress toward savings goals?
 
-## Who Is It For?
+Household Budget Planner brings those answers into one shared system with household-level access control, monthly visibility, and a clearer record of financial activity.
 
-<div class="feature-grid">
-	<article class="feature-card">
-		<h4>Household finance managers</h4>
-		<p>People responsible for tracking the family budget — income, bills, spending limits, and savings targets. They need a clear monthly overview and control over category budgets.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Household members</h4>
-		<p>Everyone who records transactions and wants visibility into the shared financial picture. They need a simple way to log expenses and see current budget status.</p>
-	</article>
-</div>
+## Who It Is For
 
-The platform is designed for small households — families, couples, or flatmates — who want shared visibility and straightforward financial governance.
+| Audience | Needs | How the product helps |
+|---|---|---|
+| Couples and families | Shared visibility into spending, bills, and savings | Centralizes household finance activity in one place |
+| Flatmates or shared households | A simple way to record transactions and review shared spending | Supports day-to-day transaction tracking and monthly summaries |
+| Household finance managers | Better control over budgets and recurring costs | Adds category budgets, bill tracking, and dashboard summaries |
+| Reviewers and assessors | A clear example of a complete budgeting platform | Demonstrates product scope, domain modelling, and delivery progress |
 
-## What It Does
+The product is aimed at small households that want practical budgeting support without complex financial planning features.
 
-| Feature | Description |
+## What the Product Does
+
+| Capability | What it supports |
 |---|---|
-| **Authentication** | Secure JWT-based login — each session is tied to a specific household |
-| **Expense tracking** | Record, categorize, and review spending transactions |
-| **Income tracking** | Log all household income entries |
-| **Monthly budgets** | Set per-category spending limits for each calendar month |
-| **Bill management** | Track recurring bills, due dates, and payment status |
-| **Savings goals** | Define savings targets, record contributions, and track progress |
-| **Dashboard** | A period-based summary — income vs. expenses, budget utilisation, bills due, savings progress |
+| Authentication | Register, log in, and work inside a household-specific account |
+| Expense tracking | Record and review spending by category |
+| Income tracking | Capture income entries and include them in monthly reporting |
+| Monthly budgets | Set category limits and compare planned vs actual spending |
+| Bill management | Track recurring bills, due dates, and payment status |
+| Savings goals | Define goals, track contributions, and monitor progress |
+| Dashboard | View month-based summary information across income, expenses, budgets, bills, and savings |
 
-## Scope
+## Product Value
 
-**In scope for the current baseline:**
-- User registration and authentication
-- Household-scoped data access (users can only see their own household's data)
-- Full CRUD for: categories, expenses, income, budgets, bills, savings goals, and goal contributions
-- Dashboard summary endpoint with period filtering
+| Value area | Why it matters |
+|---|---|
+| Shared visibility | Everyone in the household sees the same financial picture |
+| Better monthly control | Budgets and bill tracking make overspending easier to detect |
+| Practical accountability | Shared records reduce guesswork and missing information |
+| Progress tracking | Savings goals turn long-term plans into visible milestones |
+| Technical completeness | The project demonstrates a realistic full-stack product with meaningful domain complexity |
 
-**Out of scope:**
-- Multi-household membership per user
-- Bank or card data integrations
-- Native mobile clients
+## Scope Summary
 
-## Current Delivery Status
+### In scope for the current baseline
+
+- household-scoped authentication
+- categories, expenses, income, budgets, bills, savings goals, and goal contributions
+- dashboard summary by period
+- backend API with PostgreSQL persistence
+- frontend application shell with auth and protected routes
+
+### Out of scope for the current baseline
+
+- bank account or card integrations
+- multi-household membership for a single user
+- native mobile applications
+- advanced forecasting, exports, or financial advisor features
+
+## Current Status
+
+> Current status: Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned.
 
 | Area | Status | Notes |
 |---|---|---|
-| Backend API | <span class="badge badge-done">Implemented</span> | All core modules complete and operational |
-| Database | <span class="badge badge-done">Implemented</span> | Migrations applied, startup seeding in place |
-| Auth module | <span class="badge badge-done">Implemented</span> | Register, login, JWT token issuance |
-| Expenses | <span class="badge badge-done">Implemented</span> | Full CRUD |
-| Income | <span class="badge badge-done">Implemented</span> | Full CRUD |
-| Budgets | <span class="badge badge-done">Implemented</span> | Full CRUD |
-| Bills | <span class="badge badge-done">Implemented</span> | Full CRUD + payment tracking action |
-| Savings Goals | <span class="badge badge-done">Implemented</span> | Full CRUD + contributions |
-| Dashboard | <span class="badge badge-done">Implemented</span> | Period summary endpoint |
-| Frontend | <span class="badge badge-progress">In Progress</span> | Foundation in place; API integration active |
+| Backend API | Complete | Core finance modules and dashboard endpoints are implemented |
+| Data model and database | Complete | PostgreSQL schema, migrations, and seed data are in place |
+| Security baseline | Complete | JWT auth, password hashing, and household-scoped access are implemented |
+| Frontend authentication | Complete | Login, registration, token persistence, and protected routes exist |
+| Frontend feature wiring | In progress | Feature pages exist, but API integration and refinement are still needed |
+| Production hardening | Planned | Expanded tests, release automation, and operational checks remain |
 
-## Success Indicators
+## User Journeys
 
-This delivery is considered successful when:
+### Journey 1: Starting a household budget
 
-1. All in-scope CRUD operations are functional through the frontend UI
-2. Household data isolation is verified — users cannot access another household's data
-3. The monthly dashboard provides accurate income, expense, and budget summary data
-4. Authentication is secure and consistent — tokens expire, protected routes redirect unauthenticated users
-5. The platform is reliably deployable from a clean repository checkout
+1. A user registers and creates a household.
+2. The household starts with seeded categories.
+3. The user adds budgets, expenses, and bills.
+4. The dashboard begins showing monthly financial position.
 
-## Why This Was Built
+### Journey 2: Tracking day-to-day finances
 
-This project demonstrates a full-stack application with real business complexity: multi-entity data modeling, household-scoped authorization, domain-driven API design, and a production-ready security posture. It serves as both a practical household tool and a reference implementation of modern web application delivery.
+1. A household member logs income and expenses.
+2. The app groups entries by category and time period.
+3. The household reviews spending against budget.
+4. Upcoming bills and savings progress remain visible.
+
+### Journey 3: Reviewing household health
+
+1. A user opens the dashboard for a selected month.
+2. The app shows income, expenses, net amount, bills, and savings progress.
+3. The household can decide where to adjust spending next.
+
+## Success Criteria
+
+This project is successful when:
+
+1. the core finance workflows are usable through the frontend, not just the API
+2. household isolation is consistently enforced across all protected data
+3. dashboard values match the underlying financial records for the selected period
+4. the project can be set up and deployed from a clean checkout with clear documentation
+5. stakeholders can quickly understand the product purpose and current delivery state from the docs alone
+
+## Related Pages
+
+- [Architecture](./architecture.html)
+- [API Reference](./api-reference.html)
+- [Frontend Guide](./frontend-guide.html)
+- [Roadmap](./roadmap.html)

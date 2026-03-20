@@ -1,182 +1,163 @@
 # Architecture
 
-<p class="page-intro">System structure, component responsibilities, key design decisions, and data model — the main technical reference for understanding how the platform is built and why.</p>
+This page explains how the system is put together, why the main design decisions were made, and what each component is responsible for. It is intended to be practical reference material rather than a formal architecture report.
 
-**Quick links:**
+## Quick Links
+
 - [System Overview](#system-overview)
-- [Backend Layer Structure](#backend-layer-structure)
-- [Why This Architecture?](#why-this-architecture)
+- [Why This Architecture](#why-this-architecture)
+- [Component Responsibilities](#component-responsibilities)
+- [Backend Request Flow](#backend-request-flow)
 - [Domain Modules](#domain-modules)
-- [Data Model](#data-model)
-- [Request Lifecycle](#request-lifecycle)
-- [Security Architecture](#security-architecture)
+- [Data Model Summary](#data-model-summary)
+- [Security Notes](#security-notes)
 
 ## System Overview
 
-The platform is split into two independently deployable components that communicate over HTTP:
+The platform is split into a frontend client and a backend API.
 
-<div class="feature-grid">
-	<article class="feature-card">
-		<h4>Frontend Client</h4>
-		<p>React 18 + TypeScript application built with Vite. Renders the UI, manages local state, and communicates with the backend API using authenticated HTTP requests.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Backend API</h4>
-		<p>ASP.NET Core 9 REST API. Handles authentication, enforces business rules and household isolation, and persists all financial data in PostgreSQL via Entity Framework Core.</p>
-	</article>
-</div>
-
-<div class="diagram-placeholder">
-	<strong>System Context</strong>
-	Browser → React SPA → HTTPS/REST → ASP.NET Core API → PostgreSQL
-	<br><em>Diagram placeholder — see component descriptions below</em>
-</div>
-
-## Technology Stack
-
-| Layer | Technology | Version |
+| Component | Responsibility | Technology |
 |---|---|---|
-| Frontend framework | React | 18.x |
-| Frontend language | TypeScript | 5.x |
-| Build tool | Vite | 5.x |
-| UI components | Shadcn/UI + Tailwind CSS | — |
-| Routing | React Router | v7 |
-| Backend framework | ASP.NET Core | 9.0 |
-| Backend language | C# | 13 |
-| ORM | Entity Framework Core | 9.0 |
-| Database | PostgreSQL | 14+ |
-| Authentication | JWT Bearer | HS256 |
-| Password hashing | BCrypt | Work factor 12 |
-| Object mapping | AutoMapper | — |
+| Frontend | Renders the UI, handles routing, manages auth state, and calls the API | React 18, TypeScript, Vite, React Router |
+| Backend API | Validates requests, enforces business rules, scopes data to a household, and exposes REST endpoints | ASP.NET Core 9, C#, Entity Framework Core |
+| Database | Stores users, households, categories, budgets, bills, transactions, and savings data | PostgreSQL |
 
-## Backend Layer Structure
+> Diagram placeholder: Browser -> React frontend -> HTTP API -> ASP.NET Core services -> PostgreSQL
 
-The backend follows a clean layered architecture. Each request flows through these layers in order:
+## Why This Architecture
 
+The architecture is intentionally simple and practical.
+
+| Decision | Reason |
+|---|---|
+| Separate frontend and backend | Allows each side to be developed and deployed independently |
+| Service-based backend | Keeps business rules out of controllers and makes household scoping consistent |
+| DTO-based API contracts | Prevents entity leakage and keeps the API stable even if the database model changes |
+| JWT auth with household claims | Gives each request enough context to enforce household isolation server-side |
+| PostgreSQL with EF Core | Fits the relational data model well and supports migrations cleanly |
+
+This approach keeps the codebase understandable while still covering real application concerns such as authentication, authorization, and data ownership.
+
+## Component Responsibilities
+
+### Frontend
+
+The frontend is responsible for:
+
+- route handling
+- login and registration flows
+- token persistence in local storage
+- showing protected pages only to authenticated users
+- rendering data returned by the API
+
+### Backend API
+
+The backend is responsible for:
+
+- validating inputs
+- issuing and validating JWT tokens
+- enforcing household-level access control
+- implementing domain rules for budgets, bills, and savings
+- returning API responses through DTOs
+
+### Service Layer
+
+The service layer is the main business boundary.
+
+- Controllers read the request and return HTTP responses.
+- Services perform business operations and household checks.
+- `ApplicationDbContext` handles persistence.
+
+This is important because household scoping should not be repeated differently in multiple controllers.
+
+## Backend Request Flow
+
+```text
+HTTP request
+  -> authentication middleware validates JWT
+  -> controller reads route, body, and user claims
+  -> service applies business rules and household filtering
+  -> EF Core queries or updates PostgreSQL
+  -> controller returns DTO response
 ```
-HTTP Request
-    ↓
-Controller     — reads route/body, extracts claims, returns HTTP response
-    ↓
-Service        — enforces business rules and household scoping
-    ↓
-DbContext      — queries and persists entities via EF Core
-    ↓
-PostgreSQL
-```
 
-Each domain module has a dedicated **Controller**, **Service**, **DTO set**, and **Entity**. No business logic lives in controllers. No data access logic lives outside the service/DbContext layer.
+In practice, a protected request works like this:
 
-Global exception middleware catches all unhandled exceptions and returns consistent error responses — controllers do not contain try/catch blocks.
-
-## Why This Architecture?
-
-**Separate frontend and backend runtimes**
-Keeping the two components separate allows independent deployment, independent development, and the ability to host them on different infrastructure (e.g. CDN for frontend, app service for API).
-
-**Layered backend with service layer**
-The service layer is the single enforcement point for household isolation and business rules. This prevents household scoping from being accidentally bypassed and makes services independently testable.
-
-**DTOs for all API contracts**
-Requests and responses go through DTOs, never raw entities. This prevents accidental data leakage (e.g. password hashes in responses) and decouples the API contract from the database schema.
-
-**AutoMapper**
-Keeps controller code clean — entity-to-DTO mapping is declarative and centralized in `MappingProfile.cs`.
-
-**JWT with household claim**
-Embedding `householdId` in the token means every request carries its own household context. Services trust this claim rather than accepting `householdId` from request bodies, which prevents cross-household access.
+1. the client sends `Authorization: Bearer <token>`
+2. ASP.NET Core validates the token
+3. the controller extracts `userId` and `householdId` from claims
+4. the service performs the requested operation for that household only
+5. the result is mapped to a DTO and returned to the client
 
 ## Domain Modules
 
-| Module | Route Base | Description |
+| Module | Route base | Responsibility |
 |---|---|---|
-| Auth | `/api/auth` | Registration, login, current user |
-| Households | `/api/households` | Household details and members |
-| Categories | `/api/categories` | Expense categories — system defaults and household-custom |
-| Expenses | `/api/expenses` | Spending transaction records |
-| Income | `/api/income` | Household income records |
-| Budgets | `/api/budgets` | Monthly spending limits per category |
-| Bills | `/api/bills` | Recurring bills with due dates and payment tracking |
-| Savings Goals | `/api/savings-goals` | Savings targets and contribution tracking |
-| Goal Contributions | `/api/goals/{id}/contributions` | Individual contributions toward a savings goal |
-| Dashboard | `/api/dashboard` | Aggregated period summaries |
+| Auth | `/api/auth` | Register, log in, and get current user |
+| Households | `/api/households` | Return household details and members |
+| Categories | `/api/categories` | Manage default and household-specific categories |
+| Expenses | `/api/expenses` | Record and manage spending transactions |
+| Income | `/api/income` | Record and manage income transactions |
+| Budgets | `/api/budgets` | Manage monthly category budgets |
+| Bills | `/api/bills` | Track recurring bills and mark them as paid |
+| Savings goals | `/api/savings-goals` | Manage goals and progress |
+| Goal contributions | `/api/goals/{goalId}/contributions` | Record contributions against a goal |
+| Dashboard | `/api/dashboard` | Return monthly finance summaries |
 
-## Data Model
+## Data Model Summary
 
-Nine entities make up the core data model:
+The core data model is built around household ownership.
 
-<div class="feature-grid">
-	<article class="feature-card">
-		<h4>User</h4>
-		<p>Authenticated platform user. Belongs to one Household. Stores hashed password (BCrypt) and email (unique).</p>
-	</article>
-	<article class="feature-card">
-		<h4>Household</h4>
-		<p>The organizational unit. All financial data is scoped to a Household. Created automatically at registration.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Category</h4>
-		<p>Classification label for Expenses and Budgets. Null <code>HouseholdId</code> = system default (visible to all). Non-null = household-custom.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Expense</h4>
-		<p>A spending transaction. Linked to a Category. Scoped to Household.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Income</h4>
-		<p>An income record. Tracks amount, date, and source description. Scoped to Household.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Budget</h4>
-		<p>A monthly spending limit per Category. Unique constraint: one per Household + Category + Month.</p>
-	</article>
-	<article class="feature-card">
-		<h4>Bill</h4>
-		<p>A recurring bill with a due date and paid/unpaid status. Supports a payment action endpoint.</p>
-	</article>
-	<article class="feature-card">
-		<h4>SavingsGoal</h4>
-		<p>A savings target with a defined amount and optional deadline. Tracks total contributions.</p>
-	</article>
-	<article class="feature-card">
-		<h4>GoalContribution</h4>
-		<p>A contribution payment linked to a SavingsGoal. Represents a single deposit toward the target amount.</p>
-	</article>
-</div>
-
-<div class="diagram-placeholder">
-	<strong>Entity Relationship Diagram</strong>
-	User → Household ← Expense, Income, Budget, Bill, SavingsGoal
-	<br>SavingsGoal ← GoalContribution
-	<br>Expense/Budget → Category
-	<br><em>Full ER diagram placeholder — entities and relationships described above</em>
-</div>
-
-**Key constraints:**
-- Email must be unique across all users
-- One Budget per Household + Category + Calendar month
-- GoalContributions must reference a SavingsGoal in the same Household
-- All entities include `CreatedAt` and `UpdatedAt` audit fields
-
-## Request Lifecycle
-
-1. The client sends an HTTP request with `Authorization: Bearer <token>`
-2. ASP.NET Core middleware validates the JWT and populates `HttpContext.User` claims
-3. The Controller reads `userId` and `householdId` from claims via `ClaimsPrincipalExtensions`
-4. The Controller delegates to the relevant Service, passing the household context
-5. The Service enforces household isolation — it only queries or mutates data for the correct household
-6. Entity Framework Core executes the query against PostgreSQL
-7. The Controller maps the entity result to a DTO via AutoMapper and returns the HTTP response
-
-## Security Architecture
-
-| Control | Implementation |
+| Entity | Role |
 |---|---|
-| Authentication | JWT HS256 tokens, issued at login, validated on every protected request |
-| Token claims | `userId`, `email`, `householdId` embedded at token creation |
-| Password storage | BCrypt with work factor 12 — passwords are never stored in plain text |
-| Household isolation | Enforced in the service layer — not in controllers |
-| CORS | Restricted to configured frontend origin(s) |
-| Secrets | JWT secret and DB credentials stored in configuration/environment — never hard-coded |
+| User | Authenticated person who belongs to one household |
+| Household | Ownership boundary for all financial data |
+| Category | Shared or household-specific classification for financial records |
+| Expense | Spending record tied to a category |
+| Income | Income record tied to the household |
+| Budget | Monthly limit for a category |
+| Bill | Recurring or one-time bill with due date and payment state |
+| SavingsGoal | Named savings target with amount and optional date |
+| GoalContribution | Individual contribution toward a savings goal |
 
-See [Security and Privacy](./security-privacy.html) for the full security posture.
+Key constraints:
+
+- one user belongs to one household
+- email addresses must be unique
+- one budget exists per household, category, and month
+- all household finance records are filtered by household ownership
+- audit timestamps are stored on entities
+
+> Diagram placeholder: `Household` is the ownership root. `User`, `Expense`, `Income`, `Budget`, `Bill`, and `SavingsGoal` belong to a household. `GoalContribution` belongs to a savings goal. `Expense` and `Budget` link to `Category`.
+
+## Technology Summary
+
+| Layer | Technology |
+|---|---|
+| Frontend | React 18, TypeScript, Vite |
+| Routing | React Router 7 |
+| Backend | ASP.NET Core 9 |
+| ORM | Entity Framework Core 9 |
+| Database | PostgreSQL |
+| Authentication | JWT bearer tokens |
+| Password hashing | BCrypt |
+| Object mapping | AutoMapper |
+
+## Security Notes
+
+| Control | Current approach |
+|---|---|
+| Authentication | JWT tokens issued on login and validated on protected routes |
+| Authorization | Household scope enforced in backend services |
+| Password storage | BCrypt hashing |
+| CORS | Allowed origins configured in application settings |
+| Error handling | Global exception middleware |
+
+For more detail, see [Security and Privacy](./security-privacy.html).
+
+## Related Pages
+
+- [Business Overview](./business-overview.html)
+- [API Reference](./api-reference.html)
+- [Frontend Guide](./frontend-guide.html)
+- [Deployment](./deployment.html)

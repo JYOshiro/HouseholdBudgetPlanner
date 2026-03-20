@@ -1,97 +1,112 @@
 # Deployment
 
-<p class="page-intro">Configuration requirements, environment setup, step-by-step deployment guidance, and a pre-release checklist for the backend, frontend, and database.</p>
+This page covers the practical deployment model for the frontend, backend, and database. It focuses on what needs to be configured, what order to deploy in, and what to verify before release.
 
-**Quick links:**
-- [Runtime Model](#runtime-model)
-- [Configuration](#configuration)
-- [Deploying the Backend](#deploying-the-backend)
-- [Deploying the Frontend](#deploying-the-frontend)
-- [Pre-Release Checklist](#pre-release-checklist)
+## Quick Links
 
-## Runtime Model
+- [Deployment Model](#deployment-model)
+- [Environment Requirements](#environment-requirements)
+- [Backend Configuration](#backend-configuration)
+- [Frontend Configuration](#frontend-configuration)
+- [Deployment Flow](#deployment-flow)
+- [Release Checklist](#release-checklist)
 
-The platform has three independently deployable components:
+## Deployment Model
 
-| Component | Runtime | Typical Host |
+The app is made of three deployable parts.
+
+| Part | What it runs | Typical hosting options |
 |---|---|---|
-| Frontend | Static files | CDN / static host (Vercel, Netlify, GitHub Pages) |
-| Backend API | ASP.NET Core 9 process | App service (Render, Railway, Azure App Service) |
-| Database | PostgreSQL | Managed DB (Supabase, Railway, Neon, AWS RDS) |
+| Frontend | Static assets built by Vite | GitHub Pages, Netlify, Vercel, static CDN |
+| Backend API | ASP.NET Core application | Azure App Service, Render, Railway, VM, container host |
+| Database | PostgreSQL | Managed PostgreSQL provider or self-hosted instance |
 
-The frontend and backend only connect via the API base URL — they can be hosted on different services or domains.
+The frontend only needs to know the backend API URL. The backend needs database access, JWT settings, and allowed frontend origins.
 
-## Configuration
+## Environment Requirements
 
-### Backend — Environment Variables
+| Requirement | Notes |
+|---|---|
+| .NET 9 runtime or SDK | Required to run the backend |
+| Node.js | Required to build the frontend |
+| PostgreSQL | Required for persistence |
+| Environment variable support | Needed for secrets and deployment-specific config |
+| HTTPS | Strongly recommended for any public environment |
 
-Set these in your hosting environment or in `appsettings.json` / `appsettings.Production.json`:
+## Backend Configuration
 
-| Variable | Description | Example |
+The backend reads configuration from `appsettings` and environment variables.
+
+### Required backend settings
+
+| Setting | Purpose | Example |
 |---|---|---|
-| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | `Host=db.host;Database=budget_prod;Username=app;Password=secret` |
-| `JwtSettings__Secret` | JWT signing secret — minimum 32 characters, random | `your-strong-random-32-char-secret` |
-| `JwtSettings__ExpirationMinutes` | Token lifetime in minutes | `60` (production) / `1440` (dev) |
-| `AllowedOrigins` | Comma-separated list of allowed frontend origins | `https://your-frontend.com` |
+| `ConnectionStrings__DefaultConnection` | PostgreSQL connection string | `Host=db;Port=5432;Database=budget_prod;Username=app;Password=secret` |
+| `JwtSettings__Secret` | JWT signing secret | `long-random-secret-at-least-32-characters` |
+| `JwtSettings__Issuer` | Token issuer | `HouseholdBudgetApi` |
+| `JwtSettings__Audience` | Token audience | `HouseholdBudgetApp` |
+| `JwtSettings__ExpirationMinutes` | Token lifetime | `60` |
+| `Cors__AllowedOrigins__0` | First allowed frontend origin | `https://your-frontend.example.com` |
 
-<div class="callout-warning">
-<strong>Security:</strong> Never commit secrets to version control. Use your hosting platform's secret store, environment variables, or a secrets manager. Do not hard-code credentials in <code>appsettings.json</code>.
-</div>
+> Security note: do not keep production secrets in committed configuration files. Use your host's secret or environment variable mechanism.
 
-### Frontend — Build-Time Variables
+## Frontend Configuration
 
-| Variable | Description | Example |
+The frontend currently reads this build-time variable:
+
+| Setting | Purpose | Example |
 |---|---|---|
-| `VITE_API_BASE_URL` | Base URL of the backend API | `https://your-api.com/api` |
+| `VITE_API_URL` | Base URL for API requests | `https://your-api.example.com/api` |
 
-Set this in `frontend/.env.production` or as an environment variable in your build pipeline.
+Example production environment file:
 
----
+```env
+VITE_API_URL=https://your-api.example.com/api
+```
 
-## Deploying the Backend
+## Deployment Flow
 
-### 1. Set environment variables
+The safest deployment order is database, backend, then frontend.
 
-Configure required variables in your hosting environment before deployment.
+### 1. Prepare the database
 
-### 2. Apply database migrations
+- create the production PostgreSQL database
+- create the application user and permissions
+- confirm the connection string works from the backend host
 
-Run migrations against the target database before starting the application:
+### 2. Configure backend settings
+
+Set the database connection string, JWT settings, and CORS allowed origins in the hosting environment.
+
+### 3. Apply backend migrations
 
 ```bash
 cd backend
-dotnet ef database update --connection "Host=...;Database=...;Username=...;Password=..."
+dotnet ef database update --connection "Host=...;Port=5432;Database=...;Username=...;Password=..."
 ```
 
-### 3. Publish
+### 4. Publish and deploy the backend
 
 ```bash
 cd backend
 dotnet publish -c Release -o ./publish
 ```
 
-### 4. Start the service
+Run the published app with:
 
 ```bash
 cd backend/publish
 dotnet HouseholdBudgetApi.dll
 ```
 
-For managed hosting platforms (Render, Railway, etc.), point the start command to `dotnet HouseholdBudgetApi.dll` and set the environment variables through the platform UI.
+### 5. Verify the backend before shipping the frontend
 
----
+- confirm the API starts cleanly
+- confirm the database migrates successfully
+- confirm Swagger or an equivalent test path works in the intended environment
+- confirm a real login request returns a valid token
 
-## Deploying the Frontend
-
-### 1. Set the API URL
-
-Create `frontend/.env.production`:
-
-```
-VITE_API_BASE_URL=https://your-api-domain.com/api
-```
-
-### 2. Install and build
+### 6. Build and deploy the frontend
 
 ```bash
 cd frontend
@@ -99,47 +114,62 @@ npm install
 npm run build
 ```
 
-Build output is in `frontend/dist/`. Upload this folder to your static host.
+Deploy the generated `frontend/dist/` output to your static hosting provider.
 
-### 3. SPA routing
+### 7. Configure SPA route fallback
 
-Configure your static host to serve `index.html` for all routes. This is required for React Router's client-side navigation to work correctly on page refresh.
+React Router routes need a fallback to `index.html` on refresh.
 
-- **Netlify:** add a `_redirects` file: `/* /index.html 200`
-- **Vercel:** add a `vercel.json` with rewrite rules
-- **Nginx:** add `try_files $uri /index.html` to your server block
+| Host | Required rule |
+|---|---|
+| Netlify | `_redirects` with `/* /index.html 200` |
+| Vercel | Rewrite all unmatched routes to `/index.html` |
+| Nginx | `try_files $uri /index.html;` |
+| GitHub Pages | Use the app with a GitHub Pages-friendly SPA routing strategy or 404 redirect pattern |
 
----
+## Minimal Release Verification
 
-## Pre-Release Checklist
+After deployment, verify these flows in order:
 
-<div class="callout">
-Complete all of these before releasing to a production environment.
-</div>
+1. API health and startup logs look normal.
+2. Registration works.
+3. Login returns a token.
+4. A protected endpoint works with that token.
+5. The frontend loads and can authenticate against the deployed API.
+6. A page refresh on a protected route still resolves correctly.
 
-**Security**
-- [ ] JWT secret is a strong, randomly generated value (32+ characters)
-- [ ] Database credentials are stored in environment variables, not in committed config files
-- [ ] CORS is restricted to the production frontend domain only
-- [ ] HTTPS is enforced at the hosting or reverse proxy layer
-- [ ] Swagger UI is disabled or access-restricted in production
+## Release Checklist
 
-**Database**
-- [ ] Migrations applied and verified against the production database
-- [ ] Default categories seeded on first startup
-- [ ] Database backup procedure is defined
+### Security
 
-**Backend**
-- [ ] Application starts cleanly with `ASPNETCORE_ENVIRONMENT=Production`
-- [ ] Logging level is appropriate for production (no debug/verbose in production logs)
-- [ ] Exception middleware returns safe error responses (no stack traces)
+- [ ] production JWT secret is strong and not stored in source control
+- [ ] backend only allows trusted frontend origins
+- [ ] HTTPS is enabled for public traffic
+- [ ] Swagger exposure is a deliberate choice for production
 
-**Frontend**
-- [ ] `VITE_API_BASE_URL` points to the production API
-- [ ] Production build completes without errors or warnings
-- [ ] SPA routing configured on the static host
-- [ ] Auth flow tested against production API
+### Data and backend
 
-**Operational**
-- [ ] Health check or liveness endpoint implemented
-- [ ] Rollback plan documented for API and schema changes
+- [ ] migrations have been applied successfully
+- [ ] startup seeding completed as expected
+- [ ] production logging is enabled at a sensible level
+- [ ] exception responses do not expose internal details
+
+### Frontend
+
+- [ ] `VITE_API_URL` points to the deployed API
+- [ ] production build completes successfully
+- [ ] SPA route fallback is configured
+- [ ] login, protected navigation, and logout have been tested
+
+### Operations
+
+- [ ] rollback plan exists for backend and schema changes
+- [ ] backups or recovery procedures exist for the database
+- [ ] environment configuration is documented outside source control
+
+## Related Pages
+
+- [Getting Started](./getting-started.html)
+- [Frontend Guide](./frontend-guide.html)
+- [API Reference](./api-reference.html)
+- [Roadmap](./roadmap.html)

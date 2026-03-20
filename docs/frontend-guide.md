@@ -1,208 +1,211 @@
 # Frontend Guide
 
-<p class="page-intro">Frontend stack, current delivery status, intended architecture, folder structure, auth/token handling, backend integration approach, and current gaps — for developers working on the frontend.</p>
+This page describes the current frontend implementation, the intended direction for the app structure, and the main integration priorities. It is written for developers who need to understand what already exists and what still needs work.
 
-**Quick links:**
+## Quick Links
+
 - [Current Status](#current-status)
 - [Technology Stack](#technology-stack)
-- [Intended Architecture](#intended-architecture)
-- [Authentication and Token Handling](#authentication-and-token-handling)
+- [Current Structure](#current-structure)
 - [Routing](#routing)
-- [Integration Backlog](#integration-backlog)
-- [Developer Notes](#developer-notes)
+- [Authentication and Token Handling](#authentication-and-token-handling)
+- [Backend Integration Approach](#backend-integration-approach)
+- [Known Gaps and Priorities](#known-gaps-and-priorities)
 
 ## Current Status
 
-<div class="status-summary-grid">
-	<article class="status-card status-done">
-		<div class="status-label">Foundation</div>
-		<div class="status-value">In Place</div>
-		<p>Project scaffolded with Vite, React, TypeScript, Tailwind CSS, and Shadcn/UI configured.</p>
-	</article>
-	<article class="status-card status-progress">
-		<div class="status-label">API Integration</div>
-		<div class="status-value">In Progress</div>
-		<p>Auth service and API client are the active development track. Feature screens are queued.</p>
-	</article>
-	<article class="status-card status-planned">
-		<div class="status-label">Full Feature Parity</div>
-		<div class="status-value">Planned</div>
-		<p>All CRUD screens, empty states, loading states, and error handling to follow integration.</p>
-	</article>
-</div>
+Current status: Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned.
+
+The frontend is beyond the scaffold stage. It already includes a working application shell and authentication foundation.
+
+| Area | Status | Notes |
+|---|---|---|
+| App shell | Implemented | Main app layout, router, and feature pages exist |
+| Landing page | Implemented | Separate public entry page exists at `/` |
+| Authentication UI | Implemented | Login and registration pages are present |
+| Auth state management | Implemented | `AuthContext` stores the token and current user |
+| Protected routing | Implemented | Auth-only routes are guarded with `RequireAuth` |
+| Shared HTTP client | Implemented | `shared/api/httpClient.ts` handles API requests and error wrapping |
+| Feature data integration | Partial | Some pages exist before full API wiring is complete |
+| UX hardening | In progress | Loading, error, and empty states need broader coverage |
+
+> Important: the current frontend expects `VITE_API_URL`, not `VITE_API_BASE_URL`. The local default in code is `https://localhost:5001/api`, which does not match the main docs default of `http://localhost:5000/api` unless you override it.
 
 ## Technology Stack
 
 | Technology | Purpose |
 |---|---|
-| React 18 | UI component framework |
-| TypeScript | Static typing across the codebase |
-| Vite | Build tool and development server |
-| Tailwind CSS | Utility-first styling |
-| Shadcn/UI | Pre-built accessible UI components |
-| React Router v7 | Client-side navigation and routing |
-| Fetch API | HTTP client for backend communication |
+| React 18 | Component-based UI |
+| TypeScript | Shared type safety across app state and API data |
+| Vite | Dev server and build pipeline |
+| React Router 7 | Route definitions and guarded navigation |
+| Fetch API | HTTP communication |
+| Tailwind CSS and UI libraries | Styling and component primitives |
 
-## Intended Architecture
+## Current Structure
 
-The frontend uses a **feature-based folder structure**. Each financial domain has its own self-contained module with pages, components, services, hooks, and types. Shared utilities and infrastructure live in a top-level `shared/` directory.
+The frontend follows a mostly feature-based structure with app-level routing and shared infrastructure.
 
-### Folder Structure
-
-<div class="folder-tree">frontend/src/
-├── App.tsx                        # Root — providers, router setup
-├── main.tsx                       # Entry point
-│
+```text
+frontend/src/
+├── app/
+│   ├── App.tsx
+│   ├── providers/
+│   └── router/
 ├── features/
 │   ├── auth/
-│   │   ├── pages/                 # LoginPage, RegisterPage
-│   │   ├── components/            # LoginForm, RegisterForm
-│   │   ├── services/              # authService.ts
-│   │   ├── hooks/                 # useAuth.ts
-│   │   └── types/                 # AuthDto, LoginDto, etc.
-│   │
-│   ├── dashboard/
-│   │   ├── pages/                 # DashboardPage
-│   │   ├── components/            # SummaryCard, BudgetBar, etc.
-│   │   ├── services/              # dashboardService.ts
-│   │   └── types/
-│   │
-│   ├── expenses/
-│   ├── income/
-│   ├── budgets/
 │   ├── bills/
-│   └── savings/
-│
+│   ├── budget/
+│   ├── dashboard/
+│   ├── finance/
+│   ├── household/
+│   ├── landing/
+│   ├── savings/
+│   ├── settings/
+│   └── transactions/
 ├── shared/
 │   ├── api/
-│   │   └── apiClient.ts           # Base fetch wrapper with token injection
-│   ├── auth/
-│   │   └── AuthContext.tsx        # Auth context — user, token, login, logout
-│   ├── components/
-│   │   ├── PrivateRoute.tsx       # Route guard for authenticated pages
-│   │   ├── Layout.tsx             # App shell — nav, sidebar, outlet
-│   │   └── ui/                    # Shared presentational components
-│   └── utils/
-│       ├── formatCurrency.ts      # Consistent currency formatting
-│       └── formatDate.ts          # Consistent date formatting
-│
-└── types/
-    └── global.d.ts</div>
-
-## Authentication and Token Handling
-
-The auth flow:
-
-1. User submits the login form — frontend POSTs to `POST /api/auth/login`
-2. On success, the API returns a JWT token
-3. The token is stored in `localStorage`
-4. All subsequent API requests include `Authorization: Bearer <token>` in the header
-5. On logout, the token is removed from storage and the user is redirected to `/login`
-
-The `AuthContext` provides the current user object and token to the entire component tree. The `PrivateRoute` component reads from this context and redirects unauthenticated users to `/login`.
-
-### API Client Pattern
-
-All requests go through a shared `apiClient.ts` wrapper that injects the auth token automatically:
-
-```typescript
-// shared/api/apiClient.ts
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5000/api';
-
-function getToken(): string | null {
-	return localStorage.getItem('token');
-}
-
-export async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
-	const token = getToken();
-	const response = await fetch(`${API_BASE}${path}`, {
-		...options,
-		headers: {
-			'Content-Type': 'application/json',
-			...(token ? { Authorization: `Bearer ${token}` } : {}),
-			...options.headers,
-		},
-	});
-
-	if (!response.ok) {
-		throw new Error(`Request failed: ${response.status} ${response.statusText}`);
-	}
-
-	if (response.status === 204) return undefined as T;
-	return response.json() as Promise<T>;
-}
+│   ├── layout/
+│   └── types/
+├── styles/
+└── main.tsx
 ```
 
-### Service Layer Pattern
+### What each area is for
 
-Each feature module wraps API calls in a dedicated service file. Components call services — never `fetch` directly:
-
-```typescript
-// features/expenses/services/expenseService.ts
-import { request } from '../../../shared/api/apiClient';
-import type { Expense, CreateExpenseDto } from '../types';
-
-export const expenseService = {
-	getAll: () =>
-		request<Expense[]>('/expenses'),
-	getById: (id: number) =>
-		request<Expense>(`/expenses/${id}`),
-	create: (data: CreateExpenseDto) =>
-		request<Expense>('/expenses', { method: 'POST', body: JSON.stringify(data) }),
-	update: (id: number, data: Partial<CreateExpenseDto>) =>
-		request<Expense>(`/expenses/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
-	remove: (id: number) =>
-		request<void>(`/expenses/${id}`, { method: 'DELETE' }),
-};
-```
-
-## DTO Alignment
-
-Frontend TypeScript types should mirror the backend DTO contracts exactly. Backend DTOs are the source of truth — they are located in `backend/DTOs/`. For example, the C# `ExpenseDto` defines what `GET /api/expenses` returns, and the frontend `Expense` interface should match field-for-field.
-
-<div class="callout-tip">
-<strong>Tip:</strong> Use the Swagger UI at <code>http://localhost:5000/swagger</code> to inspect the exact shape of every request and response while developing.
-</div>
+| Folder | Purpose |
+|---|---|
+| `app/` | App bootstrapping, router setup, and global providers |
+| `features/auth/` | Auth pages, auth API calls, route guards, and auth context |
+| `features/landing/` | Public landing page |
+| `features/dashboard/` | Dashboard page and summary views |
+| `features/transactions/` | Transaction-focused screens, likely combining expense and income workflows |
+| `features/budget/` | Budget pages |
+| `features/bills/` | Bills pages |
+| `features/savings/` | Savings goal pages |
+| `features/household/` | Household-related pages |
+| `features/settings/` | Settings area |
+| `shared/api/` | Shared HTTP client and request helpers |
+| `shared/layout/` | Main authenticated layout |
+| `shared/types/` | Shared API and view-model types |
 
 ## Routing
 
-| Route | Component | Auth Required |
+The current router uses a public area and an authenticated app area.
+
+| Route | Purpose | Access |
 |---|---|---|
-| `/` | Redirect → `/dashboard` | Yes |
-| `/login` | LoginPage | No |
-| `/register` | RegisterPage | No |
-| `/dashboard` | DashboardPage | Yes |
-| `/expenses` | ExpensesPage | Yes |
-| `/income` | IncomePage | Yes |
-| `/budgets` | BudgetsPage | Yes |
-| `/bills` | BillsPage | Yes |
-| `/savings` | SavingsPage | Yes |
+| `/` | Landing page | Public |
+| `/login` | Login page | Public |
+| `/register` | Registration page | Public |
+| `/app` | App shell with dashboard by default | Auth required |
+| `/app/transactions` | Transactions page | Auth required |
+| `/app/budget` | Budget page | Auth required |
+| `/app/bills` | Bills page | Auth required |
+| `/app/savings` | Savings page | Auth required |
+| `/app/household` | Household page | Auth required |
+| `/app/settings` | Settings page | Auth required |
 
-Protected routes render a `PrivateRoute` wrapper that checks `AuthContext` — unauthenticated users are redirected to `/login`.
+`RequireAuth` protects the `/app` route tree. `RedirectIfAuthenticated` keeps signed-in users away from `/login` and `/register`.
 
-## Integration Backlog
+## Authentication and Token Handling
 
-<div class="callout-warning">
-<strong>Active work:</strong> The items below are the current delivery priorities, ordered by dependency. Auth infrastructure must be in place before any feature screen can work.
-</div>
+The current auth flow is already implemented in the app.
 
-| Priority | Item | Status |
+1. The user logs in or registers.
+2. The frontend receives an auth response with `token`, `expiresIn`, and `user`.
+3. The token is stored in local storage under `hb_auth_token`.
+4. `AuthContext` keeps the active user and token in app state.
+5. On app startup, the provider calls `GET /api/auth/me` when a token exists.
+6. If the token is invalid, the app clears local auth state.
+
+### Current auth responsibilities
+
+| Part | Responsibility |
+|---|---|
+| `AuthContext` | Stores token, user, loading state, login, register, logout, and refresh behavior |
+| `authApi` | Wraps `/auth/register`, `/auth/login`, and `/auth/me` |
+| `RequireAuth` | Blocks unauthenticated access to app routes |
+| `RedirectIfAuthenticated` | Redirects signed-in users away from auth pages |
+
+## Backend Integration Approach
+
+The current integration pattern is service-oriented and should stay that way.
+
+### Shared HTTP client
+
+`shared/api/httpClient.ts` provides:
+
+- the API base URL
+- a common request helper
+- an `ApiError` type with status and payload
+- basic response parsing and validation error extraction
+
+### Current environment variable
+
+```env
+VITE_API_URL=http://localhost:5000/api
+```
+
+This should be set explicitly in local development to avoid the current fallback mismatch.
+
+### Recommended integration rules
+
+1. Keep raw `fetch` calls inside shared API helpers or feature API modules.
+2. Keep route components focused on state and rendering, not request construction.
+3. Mirror backend DTOs in shared TypeScript types.
+4. Do not send `householdId` from the frontend. Household scope is derived from JWT claims.
+5. Handle `401`, `400`, and network failures explicitly in the UI.
+
+### Example pattern
+
+```typescript
+import { apiRequest } from "../../shared/api/httpClient";
+import type { Expense } from "../../shared/types/api";
+
+export function getExpenses(token: string) {
+  return apiRequest<Expense[]>("/expenses", {
+    method: "GET",
+    token,
+  });
+}
+```
+
+## DTO and Contract Alignment
+
+The backend DTOs are the source of truth for API shapes.
+
+| Contract source | Location |
+|---|---|
+| Backend DTOs | `backend/DTOs/` |
+| Frontend shared types | `frontend/src/shared/types/api.ts` |
+| Interactive reference | Swagger UI at `http://localhost:5000/swagger` |
+
+When a backend DTO changes, the matching frontend type should be updated at the same time.
+
+## Known Gaps and Priorities
+
+| Priority | Item | Why it matters |
 |---|---|---|
-| 1 | API client with token injection (`apiClient.ts`) | <span class="badge badge-progress">In Progress</span> |
-| 2 | Auth service — login, register, token storage | <span class="badge badge-progress">In Progress</span> |
-| 3 | `AuthContext` + `PrivateRoute` setup | <span class="badge badge-progress">In Progress</span> |
-| 4 | Dashboard page — bound to `/api/dashboard/summary` | <span class="badge badge-planned">Planned</span> |
-| 5 | Expenses CRUD screens | <span class="badge badge-planned">Planned</span> |
-| 6 | Income CRUD screens | <span class="badge badge-planned">Planned</span> |
-| 7 | Budgets CRUD screens | <span class="badge badge-planned">Planned</span> |
-| 8 | Bills CRUD screens + pay action | <span class="badge badge-planned">Planned</span> |
-| 9 | Savings Goals screens | <span class="badge badge-planned">Planned</span> |
-| 10 | Loading, error, and empty states across all screens | <span class="badge badge-planned">Planned</span> |
+| High | Standardize local API URL configuration | Prevents avoidable local integration failures |
+| High | Complete feature-level API wiring | Makes the existing screens functional end to end |
+| High | Add consistent loading and error states | Prevents fragile or confusing UX |
+| Medium | Review naming consistency across features | `transactions`, `budget`, and `finance` should map clearly to backend domains |
+| Medium | Expand type coverage | Reduces drift between frontend and backend contracts |
+| Medium | Improve session expiry handling | Better redirects and messaging on token expiry |
+| Lower | Add more reusable view components | Helps keep page implementations consistent |
 
-## Developer Notes
+## Suggested Next Frontend Milestones
 
-- **Never pass `householdId` in request bodies.** The backend derives it from the JWT token — passing it in the body will be ignored or could cause errors.
-- **API returns `404`, not `403`, for cross-household access.** If a resource exists but belongs to a different household, the API returns 404 — not a permissions error. This is intentional.
-- **Use shared formatters.** The `formatCurrency` and `formatDate` utilities in `shared/utils/` ensure consistent output across all screens.
-- **Keep API calls in service files.** Components should call services and handle the result — not call `fetch` directly. This keeps components clean and makes services independently testable.
-- **API base URL is configurable.** Set `VITE_API_BASE_URL` in `.env.local` for development or `.env.production` for production builds.
+1. align `VITE_API_URL` across local, production, and documentation
+2. wire dashboard and transaction pages to live endpoints
+3. complete CRUD flows for budgets, bills, and savings goals
+4. add loading, empty, and error states across all authenticated pages
+5. add frontend tests around auth bootstrap and protected routing
+
+## Related Pages
+
+- [Getting Started](./getting-started.html)
+- [API Reference](./api-reference.html)
+- [Architecture](./architecture.html)
+- [Roadmap](./roadmap.html)
