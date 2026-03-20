@@ -49,11 +49,14 @@ Frontend feature integration targets completion in 1–2 weeks.
 | 4. Dashboard page | Week 1 | #3 | Real `/dashboard/summary` data displays |
 | 5. Transactions page | Week 1 | #3 | Create/edit/delete expenses and income |
 | 6. Bills page | Week 1 | #3 | List bills and mark as paid |
-| 7. Budget & Savings pages | Week 2 | #3 | All feature pages functional |
-| 8. UX hardening | Week 2 | #7 | Loading states, error handling, empty states |
+| 7. Budget page | Week 2 | #3 | Monthly budgets fully functional |
+| 8. Savings lifecycle UX | Week 2 | #3 | Active/completed separation, goal editability, and status-based actions implemented |
+| 9. UX hardening | Week 2 | #8 | Loading states, error handling, empty states |
 
 **Definition of done for this phase:**
 - All pages functional end-to-end (dashboard, transactions, budgets, bills, savings)
+- Savings goals follow lifecycle behavior (`Active`, `Completed`, `Archived`) with distinct completed-state UI
+- Savings goals are editable and edits recalculate progress, remaining, and status
 - Auth session restored on page refresh
 - Consistent UX patterns (loading spinners, error messages, empty states)
 - Type-safe API consumption (DTOs match backend exactly)
@@ -93,6 +96,7 @@ After frontend integration is complete (weeks 3+).
 - Reporting exports: CSV and PDF statements
 - Enhanced mobile responsiveness: better tablet and phone UX
 - Notifications: upcoming bills, savings goals near completion
+- Overfunding support with explicit completed-goal actions (for example, Add More / Continue Saving)
 
 ## Long-Term (Future)
 

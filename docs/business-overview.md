@@ -12,6 +12,7 @@ Household Budget Planner is a shared budgeting and finance tracking platform for
 - [Scope Summary](#scope-summary)
 - [Current Status](#current-status)
 - [User Journeys](#user-journeys)
+- [Savings Goal Lifecycle Decision](#savings-goal-lifecycle-decision)
 - [Success Criteria](#success-criteria)
 
 ## Problem Statement
@@ -47,7 +48,7 @@ At a functional level, the app supports the following capabilities.
 | Income tracking | Capture income entries and include them in monthly reporting |
 | Monthly budgets | Set category limits and compare planned vs actual spending |
 | Bill management | Track recurring bills, due dates, and payment status |
-| Savings goals | Define goals, track contributions, and monitor progress |
+| Savings goals | Create editable goals, track contributions, and move goals through lifecycle states (Active, Completed, Archived) |
 | Dashboard | View month-based summary information across income, expenses, budgets, bills, and savings |
 
 ## Product Value
@@ -117,6 +118,17 @@ In short: core backend capability is complete, while frontend feature integratio
 1. A user opens the dashboard for a selected month.
 2. The app shows income, expenses, net amount, bills, and savings progress.
 3. The household can decide where to adjust spending next.
+
+## Savings Goal Lifecycle Decision
+
+Savings goals are treated as lifecycle-based objects, not static cards.
+
+- goals are editable after creation (name, target amount, target date, priority, and details)
+- status is recalculated whenever contributions or edits change goal progress
+- completed goals are visually and behaviorally distinct from active goals
+- remaining amount never displays as negative and must show `0.00` when complete
+
+For the full decision note, rules, and acceptance criteria, see [Savings Goals Decision Note](./savings-goals-decision-note.html).
 
 ## Success Criteria
 

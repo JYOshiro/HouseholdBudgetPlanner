@@ -11,6 +11,7 @@ This page explains how the system is built, why each decision was made, and what
 - [Component Responsibilities](#component-responsibilities)
 - [Backend Request Lifecycle](#backend-request-lifecycle)
 - [Modules and Data](#modules-and-data)
+- [Savings Goal Lifecycle Model](#savings-goal-lifecycle-model)
 - [Security and Isolation](#security-and-isolation)
 
 ## System Overview
@@ -192,7 +193,7 @@ Key principle: **All queries are scoped to the household.** You cannot load an E
 | Income | Income record |
 | Budget | Monthly spending limit per Category, unique per household/category/month |
 | Bill | Recurring or one-time bill with due date and paid status |
-| SavingsGoal | Named savings target with amount and optional deadline |
+| SavingsGoal | Editable savings target with lifecycle state (`Active`, `Completed`, `Archived`) and optional completion date |
 | GoalContribution | Individual deposit toward a SavingsGoal |
 
 ### Constraints
@@ -201,6 +202,30 @@ Key principle: **All queries are scoped to the household.** You cannot load an E
 - One Budget per Household + Category + Calendar month
 - All entities include `CreatedAt` and `UpdatedAt` audit timestamps
 - GoalContribution references only goals in the same household
+- SavingsGoal remaining amount must never be negative
+- SavingsGoal status must be recalculated when contribution totals or target amount change
+
+## Savings Goal Lifecycle Model
+
+Savings goals follow explicit state transitions so UI and API behavior stay consistent.
+
+### Statuses
+
+| Status | Meaning | Main UI behavior |
+|---|---|---|
+| `Active` | Goal is in progress (`currentSaved < targetAmount`) | Primary action is Add Contribution |
+| `Completed` | Goal reached target (`currentSaved >= targetAmount`) | Goal shows completed state and should not use the same primary action as active goals |
+| `Archived` | Goal is kept for history but removed from default working list | Hidden from default active view |
+
+### Core invariants
+
+- completion rule: `currentSaved >= targetAmount` means `Completed`
+- remaining rule: if `currentSaved < targetAmount`, remaining = `targetAmount - currentSaved`; otherwise remaining = `0.00`
+- completion timestamp: set `completedAt` when goal first becomes `Completed`
+- completion rollback: clear `completedAt` if edits move the goal back to `Active`
+- editability: updating goal name/amount/date/priority/details must preserve contribution history and trigger full recalculation
+
+For full product and UX rationale, see [Savings Goals Decision Note](./savings-goals-decision-note.html).
 
 ## Technology Stack
 

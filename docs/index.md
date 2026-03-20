@@ -24,6 +24,8 @@ Find what you need based on your role:
 
 Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned. See the [Roadmap](./roadmap.html) for the full timeline and priorities.
 
+Savings goals are now documented as lifecycle-based and editable, with distinct completed-state behavior. See the [Savings Goals Decision Note](./savings-goals-decision-note.html) for product rules and UX requirements.
+
 | Component | Status |
 |---|---|
 | **Backend API & database** | ✓ Complete and tested |

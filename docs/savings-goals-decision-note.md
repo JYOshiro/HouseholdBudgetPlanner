@@ -2,6 +2,25 @@
 title: Savings Goals Decision Note
 ---
 
+This page defines the approved lifecycle behavior for savings goals, including completed-state UX and post-creation editability rules.
+
+## Quick Links
+
+- [Title](#title)
+- [Purpose](#purpose)
+- [Background](#background)
+- [Decision Summary](#decision-summary)
+- [Product Rationale](#product-rationale)
+- [Functional Requirements](#functional-requirements)
+- [UX Requirements](#ux-requirements)
+- [Business Rules](#business-rules)
+- [Data Model Impact](#data-model-impact)
+- [API / Backend Considerations](#api--backend-considerations)
+- [Frontend Considerations](#frontend-considerations)
+- [Acceptance Criteria](#acceptance-criteria)
+- [Recommended Implementation Priority](#recommended-implementation-priority)
+- [Final UX Decision](#final-ux-decision)
+
 ## Product Requirement / UX Decision Note
 
 ### Title
@@ -377,3 +396,11 @@ This means:
 - the interface should guide users differently once a goal is achieved
 
 This approach creates a more realistic, maintainable, and user-friendly savings experience for a household budgeting application.
+
+## Related Pages
+
+- [Business Overview](./business-overview.html)
+- [Architecture](./architecture.html)
+- [Frontend Guide](./frontend-guide.html)
+- [API Reference](./api-reference.html)
+- [Roadmap](./roadmap.html)

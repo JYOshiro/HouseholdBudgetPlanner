@@ -13,6 +13,7 @@ For exact request/response schemas, use [Swagger UI](http://localhost:5000/swagg
 - [Authentication](#authentication)
 - [Status Codes](#status-codes)
 - [Endpoint Reference](#endpoint-reference)
+- [Savings Goal Lifecycle Rules](#savings-goal-lifecycle-rules)
 - [Examples](#examples)
 - [Developer Notes](#developer-notes)
 
@@ -240,7 +241,7 @@ Note: One budget per household + category + month. Duplicate attempts return `40
 | `GET` | `/api/savings-goals` | Yes | List savings goals |
 | `GET` | `/api/savings-goals/{id}` | Yes | Get a specific goal |
 | `POST` | `/api/savings-goals` | Yes | Create a goal |
-| `PUT` | `/api/savings-goals/{id}` | Yes | Update a goal |
+| `PUT` | `/api/savings-goals/{id}` | Yes | Update a goal and recalculate status/progress |
 | `DELETE` | `/api/savings-goals/{id}` | Yes | Delete a goal |
 
 ### Goal Contributions
@@ -252,6 +253,63 @@ Note: One budget per household + category + month. Duplicate attempts return `40
 | `POST` | `/api/goals/{goalId}/contributions` | Yes | Create a contribution |
 | `PUT` | `/api/goals/{goalId}/contributions/{id}` | Yes | Update a contribution |
 | `DELETE` | `/api/goals/{goalId}/contributions/{id}` | Yes | Delete a contribution |
+
+## Savings Goal Lifecycle Rules
+
+The API treats savings goals as lifecycle-based resources.
+
+### Status values
+
+Recommended status support:
+
+```text
+Active | Completed | Archived
+```
+
+Optional future status:
+
+```text
+Paused
+```
+
+### Completion and remaining rules
+
+- goal is `Completed` when `currentSaved >= targetAmount`
+- remaining amount must never be negative
+- if `currentSaved < targetAmount`, `remaining = targetAmount - currentSaved`
+- if `currentSaved >= targetAmount`, `remaining = 0.00`
+
+### Edit behavior
+
+When a goal is edited, the backend should recalculate:
+
+- progress
+- remaining amount
+- status
+- completion timestamp (`completedAt`) as needed
+
+Expected lifecycle examples:
+
+- if a completed goal's target increases above `currentSaved`, status returns to `Active`
+- if an active goal's target decreases to or below `currentSaved`, status becomes `Completed`
+
+### Response shape expectations
+
+Savings goal responses should include lifecycle fields so the frontend can render state-specific UI.
+
+| Field | Type | Notes |
+|---|---|---|
+| `id` | number | Goal identifier |
+| `householdId` | number | Ownership scope |
+| `name` | string | Goal title |
+| `targetAmount` | decimal | Target to reach |
+| `currentSaved` | decimal | Aggregated contributed amount |
+| `priority` | string/number | Product-defined priority scale |
+| `targetDate` | date nullable | Planned completion date |
+| `status` | string | `Active`, `Completed`, or `Archived` |
+| `completedAt` | date-time nullable | Set when first completed; cleared if returned to active |
+| `createdAt` | date-time | Audit timestamp |
+| `updatedAt` | date-time | Audit timestamp |
 
 ### Dashboard
 

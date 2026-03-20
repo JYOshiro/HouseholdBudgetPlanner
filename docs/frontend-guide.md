@@ -10,6 +10,7 @@ This page describes the current frontend implementation, the target architecture
 - [Target State](#target-state)
 - [Recommended Sequence (Short Form)](#recommended-sequence-short-form)
 - [Implementation Sequence](#implementation-sequence)
+- [Savings Goals UX Behavior](#savings-goals-ux-behavior)
 - [Technology and Structure](#technology-and-structure)
 - [Backend Integration](#backend-integration)
 
@@ -133,16 +134,45 @@ If you need a compact delivery plan, use this order:
    - Optional: visual progress bars
 
 8. **Savings page**
-   - List goals with current progress (contributions ÷ target)
-   - Create goals
-   - Add contributions to goals
-   - Optional: show progress as percentage bars
+   - List goals grouped into Active and Completed sections (preferred)
+   - Create and edit goals (name, amount, date, priority, details)
+   - Add contributions only where state and policy allow
+   - Recalculate progress and remaining immediately after edits/contributions
+   - Show completion date and completed-state messaging where available
 
 9. **Household page**
    - Display household name and members
    - (Multi-user management not required for baseline)
 
 **Done when:** All core financial workflows are exposed in the UI.
+
+## Savings Goals UX Behavior
+
+Savings goals are lifecycle-based objects and must not be rendered as a single static card style.
+
+### Required state behavior
+
+| Goal status | Required UI signals | Primary action behavior |
+|---|---|---|
+| `Active` | Goal title, priority, saved/target/remaining, progress bar, target date | `Add Contribution` is primary; `Edit Goal` available as secondary |
+| `Completed` | Completed badge/label, saved amount, target amount, completion date (if present), remaining shown as `$0.00` | Do not use the same primary action as active goals; prefer `Edit Goal`, `View Details`, or `Archive Goal` |
+| `Archived` | Hidden from default main list (or shown only in archive view) | Contribution actions should be disabled or unavailable |
+
+### List organization
+
+- preferred: separate sections for `Active Goals` and `Completed Goals`
+- acceptable fallback: sort completed goals below active goals with strong visual distinction
+
+### Edit flow requirements
+
+When users edit goal fields (name, target amount, target date, priority, notes/details):
+
+- save changes without deleting or rewriting contribution history
+- recalculate progress and remaining values
+- recalculate status and UI state immediately
+- update completion timestamp behavior based on status transition
+
+Use the decision page as product source-of-truth: [Savings Goals Decision Note](./savings-goals-decision-note.html).
 
 ### Phase 4: Hardening (Day 7+)
 

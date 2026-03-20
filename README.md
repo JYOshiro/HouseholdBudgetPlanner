@@ -17,6 +17,7 @@
   - `docs/functional-specification.md` - Functional documentation
   - `docs/technical-specification.md` - Technical documentation
   - `docs/api-reference.md` - API endpoint reference
+  - `docs/savings-goals-decision-note.md` - Savings goals lifecycle and completed-state UX decision
 
   ## Publish Documentation with GitHub Pages
 
