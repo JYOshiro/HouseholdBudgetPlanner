@@ -43,6 +43,16 @@ public class SavingsGoal : BaseEntity
     public virtual Household? Household { get; set; }
 
     /// <summary>
+    /// Goal status: "Active", "Completed", or "Archived".
+    /// </summary>
+    public string Status { get; set; } = "Active";
+
+    /// <summary>
+    /// Date the goal was completed (null if not yet completed).
+    /// </summary>
+    public DateTime? CompletedDate { get; set; }
+
+    /// <summary>
     /// Navigation property to all contributions to this goal.
     /// </summary>
     public virtual ICollection<GoalContribution> Contributions { get; set; } = new List<GoalContribution>();

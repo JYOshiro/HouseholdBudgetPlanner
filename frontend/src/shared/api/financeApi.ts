@@ -88,6 +88,9 @@ export interface SavingsGoalDto {
   priority: string;
   percentageComplete: number;
   remaining: number;
+  status: string;
+  completedDate?: string | null;
+  isCompleted: boolean;
 }
 
 export interface BudgetDto {
@@ -204,6 +207,20 @@ export const financeApi = {
       token,
       body: JSON.stringify(payload),
     }),
+
+  updateSavingsGoal: (
+    token: string,
+    goalId: number,
+    payload: { name?: string; targetAmount?: number; targetDate?: string | null; priority?: string; status?: string },
+  ) =>
+    apiRequest<SavingsGoalDto>(`/savings-goals/${goalId}`, {
+      method: "PUT",
+      token,
+      body: JSON.stringify(payload),
+    }),
+
+  deleteSavingsGoal: (token: string, goalId: number) =>
+    apiRequest<void>(`/savings-goals/${goalId}`, { method: "DELETE", token }),
 
   createGoalContribution: (token: string, goalId: number, payload: { amount: number; contributionDate: string }) =>
     apiRequest(`/goals/${goalId}/contributions`, {

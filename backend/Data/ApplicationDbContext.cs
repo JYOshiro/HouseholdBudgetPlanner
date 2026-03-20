@@ -235,6 +235,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(e => e.TargetAmount).HasPrecision(19, 2);
             entity.Property(e => e.CurrentAmount).HasPrecision(19, 2).HasDefaultValue(0);
             entity.Property(e => e.Priority).HasMaxLength(20);
+            entity.Property(e => e.Status).IsRequired().HasMaxLength(20).HasDefaultValue("Active");
+            entity.Property(e => e.CompletedDate).IsRequired(false);
             entity.Property(e => e.CreatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
             entity.Property(e => e.UpdatedAt).HasDefaultValueSql("CURRENT_TIMESTAMP");
 

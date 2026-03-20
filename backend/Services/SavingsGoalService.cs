@@ -106,14 +106,42 @@ public class SavingsGoalService : ISavingsGoalService
             if (!string.IsNullOrWhiteSpace(request.Name))
                 goal.Name = request.Name.Trim();
 
+            if (request.TargetDate.HasValue)
+                goal.TargetDate = request.TargetDate.Value;
+            else if (request.TargetDate == null && request.GetType().GetProperty(nameof(request.TargetDate)) != null)
+                goal.TargetDate = null;
+
             if (request.TargetAmount.HasValue)
                 goal.TargetAmount = request.TargetAmount.Value;
 
-            if (request.TargetDate.HasValue)
-                goal.TargetDate = request.TargetDate.Value;
-
             if (!string.IsNullOrWhiteSpace(request.Priority))
                 goal.Priority = NormalizePriority(request.Priority);
+
+            // Handle explicit status change (archive or reopen).
+            if (!string.IsNullOrWhiteSpace(request.Status))
+            {
+                var normalizedStatus = NormalizeStatus(request.Status);
+                goal.Status = normalizedStatus;
+                if (normalizedStatus == "Active")
+                    goal.CompletedDate = null;
+                else if (normalizedStatus == "Completed" && goal.CompletedDate == null)
+                    goal.CompletedDate = DateTime.UtcNow;
+            }
+
+            // Auto-recalculate completion when target amount changes.
+            if (request.TargetAmount.HasValue && goal.Status != "Archived")
+            {
+                if (goal.CurrentAmount >= goal.TargetAmount && goal.Status != "Completed")
+                {
+                    goal.Status = "Completed";
+                    goal.CompletedDate ??= DateTime.UtcNow;
+                }
+                else if (goal.CurrentAmount < goal.TargetAmount && goal.Status == "Completed")
+                {
+                    goal.Status = "Active";
+                    goal.CompletedDate = null;
+                }
+            }
 
             await _context.SaveChangesAsync();
 
@@ -160,6 +188,8 @@ public class SavingsGoalService : ISavingsGoalService
             CurrentAmount = goal.CurrentAmount,
             TargetDate = goal.TargetDate,
             Priority = goal.Priority,
+            Status = goal.Status,
+            CompletedDate = goal.CompletedDate,
         };
     }
 
@@ -174,6 +204,20 @@ public class SavingsGoalService : ISavingsGoalService
             "normal" => "Normal",
             "low" => "Low",
             _ => throw new ArgumentException("Priority must be one of: High, Normal, Low."),
+        };
+    }
+
+    private static string NormalizeStatus(string? status)
+    {
+        if (string.IsNullOrWhiteSpace(status))
+            return "Active";
+
+        return status.Trim().ToLowerInvariant() switch
+        {
+            "active" => "Active",
+            "completed" => "Completed",
+            "archived" => "Archived",
+            _ => throw new ArgumentException("Status must be one of: Active, Completed, Archived."),
         };
     }
 }

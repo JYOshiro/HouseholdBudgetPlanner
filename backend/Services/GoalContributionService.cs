@@ -98,6 +98,14 @@ public class GoalContributionService : IGoalContributionService
             };
 
             goal.CurrentAmount += request.Amount;
+
+            // Auto-complete goal when target is reached.
+            if (goal.Status == "Active" && goal.CurrentAmount >= goal.TargetAmount)
+            {
+                goal.Status = "Completed";
+                goal.CompletedDate = DateTime.UtcNow;
+            }
+
             _context.GoalContributions.Add(contribution);
             await _context.SaveChangesAsync();
 

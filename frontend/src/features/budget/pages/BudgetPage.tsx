@@ -283,112 +283,146 @@ export default function BudgetPage() {
       <div className="bg-white rounded-2xl p-6 border border-gray-200 shadow-sm">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">Expense Categories ({expenseCategories.length})</h2>
         <div className="space-y-3">
-          {expenseCategories.map((c) => (
-            <div key={c.id} className="rounded-xl border border-gray-200 p-4">
-              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-                <div className="flex items-center gap-3">
-                  <span
-                    className="inline-flex px-3 py-1 text-sm rounded-full border"
-                    style={{ borderColor: c.color ?? "#d1d5db", color: c.color ?? "#374151" }}
-                  >
-                    {c.name}
-                  </span>
-                  <span className="text-xs text-gray-500">{c.isSystemDefault ? "Default category" : "Custom category"}</span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  {editingBudgetCategoryId === c.id ? (
-                    <>
-                      <input
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        value={editingBudgetAmount}
-                        onChange={(e) => setEditingBudgetAmount(e.target.value)}
-                        placeholder="Budget amount"
-                        className="w-40 px-3 py-2 border border-gray-200 rounded-xl"
-                      />
-                      <button
-                        onClick={() => void handleSaveBudget(c.id)}
-                        disabled={saving}
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl disabled:opacity-60"
-                      >
-                        <Save className="w-4 h-4" />
-                        Save Budget
-                      </button>
-                      <button
-                        onClick={cancelBudgetEdit}
-                        className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 text-gray-700 rounded-xl"
-                      >
-                        <X className="w-4 h-4" />
-                        Cancel
-                      </button>
-                    </>
-                  ) : (
-                    <button
-                      onClick={() => startBudgetEdit(c.id)}
-                      className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50"
+          {expenseCategories.map((c) => {
+            const budget = budgetsByCategoryId.get(c.id);
+            return (
+              <div key={c.id} className="rounded-xl border border-gray-200 p-4">
+                <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                  <div className="flex items-center gap-3">
+                    <span
+                      className="inline-flex px-3 py-1 text-sm rounded-full border"
+                      style={{ borderColor: c.color ?? "#d1d5db", color: c.color ?? "#374151" }}
                     >
-                      <Pencil className="w-4 h-4" />
-                      {budgetsByCategoryId.has(c.id) ? "Edit Budget" : "Set Budget"}
-                    </button>
-                  )}
+                      {c.name}
+                    </span>
+                    <span className="text-xs text-gray-500">{c.isSystemDefault ? "Default category" : "Custom category"}</span>
+                  </div>
 
-                  {!c.isSystemDefault && editingCategoryId !== c.id && (
-                    <>
+                  <div className="flex flex-wrap items-center gap-2">
+                    {editingBudgetCategoryId === c.id ? (
+                      <>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          value={editingBudgetAmount}
+                          onChange={(e) => setEditingBudgetAmount(e.target.value)}
+                          placeholder="Budget amount"
+                          className="w-40 px-3 py-2 border border-gray-200 rounded-xl"
+                        />
+                        <button
+                          onClick={() => void handleSaveBudget(c.id)}
+                          disabled={saving}
+                          className="inline-flex items-center gap-2 px-3 py-2 bg-blue-600 text-white rounded-xl disabled:opacity-60"
+                        >
+                          <Save className="w-4 h-4" />
+                          Save Budget
+                        </button>
+                        <button
+                          onClick={cancelBudgetEdit}
+                          className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 text-gray-700 rounded-xl"
+                        >
+                          <X className="w-4 h-4" />
+                          Cancel
+                        </button>
+                      </>
+                    ) : (
                       <button
-                        onClick={() => startCategoryEdit(c)}
+                        onClick={() => startBudgetEdit(c.id)}
                         className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50"
                       >
                         <Pencil className="w-4 h-4" />
-                        Edit Category
+                        {budget ? "Edit Budget" : "Set Budget"}
                       </button>
-                      <button
-                        onClick={() => void handleDeleteCategory(c)}
-                        disabled={saving}
-                        className="inline-flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 disabled:opacity-60"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                        Delete Category
-                      </button>
+                    )}
+
+                    {!c.isSystemDefault && editingCategoryId !== c.id && (
+                      <>
+                        <button
+                          onClick={() => startCategoryEdit(c)}
+                          className="inline-flex items-center gap-2 px-3 py-2 border border-gray-200 text-gray-700 rounded-xl hover:bg-gray-50"
+                        >
+                          <Pencil className="w-4 h-4" />
+                          Edit Category
+                        </button>
+                        <button
+                          onClick={() => void handleDeleteCategory(c)}
+                          disabled={saving}
+                          className="inline-flex items-center gap-2 px-3 py-2 border border-red-200 text-red-600 rounded-xl hover:bg-red-50 disabled:opacity-60"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          Delete Category
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+
+                {/* Budget Information */}
+                <div className="mt-3 pt-3 border-t border-gray-100">
+                  {budget ? (
+                    <>
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-sm text-gray-600">Monthly Budget</span>
+                          <span className="text-sm font-semibold text-gray-900">${Number(budget.amount).toFixed(2)}</span>
+                        </div>
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs text-gray-500">Spent / Remaining</span>
+                          <span className="text-xs text-gray-700">
+                            ${Number(budget.currentSpent).toFixed(2)} / ${Number(budget.remaining).toFixed(2)}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="w-full h-2 rounded-full bg-gray-200 overflow-hidden">
+                        <div
+                          className={`h-full ${Number(budget.percentageUsed) > 100 ? "bg-red-500" : "bg-blue-600"}`}
+                          style={{ width: `${Math.min(100, Number(budget.percentageUsed))}%` }}
+                        />
+                      </div>
+                      <p className="mt-2 text-xs text-gray-600">
+                        {Number(budget.percentageUsed).toFixed(0)}% used
+                      </p>
                     </>
+                  ) : (
+                    <p className="text-sm text-gray-500">No budget set</p>
                   )}
                 </div>
-              </div>
 
-              {editingCategoryId === c.id && (
-                <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
-                  <input
-                    value={editingCategoryName}
-                    onChange={(e) => setEditingCategoryName(e.target.value)}
-                    placeholder="Category name"
-                    className="px-3 py-2 border border-gray-200 rounded-xl"
-                  />
-                  <input
-                    type="color"
-                    value={editingCategoryColor}
-                    onChange={(e) => setEditingCategoryColor(e.target.value)}
-                    className="h-10 border border-gray-200 rounded-xl"
-                  />
-                  <button
-                    onClick={() => void handleUpdateCategory()}
-                    disabled={saving}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl disabled:opacity-60"
-                  >
-                    <Save className="w-4 h-4" />
-                    Save Category
-                  </button>
-                  <button
-                    onClick={cancelCategoryEdit}
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-xl"
-                  >
-                    <X className="w-4 h-4" />
-                    Cancel
-                  </button>
-                </div>
-              )}
-            </div>
-          ))}
+                {editingCategoryId === c.id && (
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <input
+                      value={editingCategoryName}
+                      onChange={(e) => setEditingCategoryName(e.target.value)}
+                      placeholder="Category name"
+                      className="px-3 py-2 border border-gray-200 rounded-xl"
+                    />
+                    <input
+                      type="color"
+                      value={editingCategoryColor}
+                      onChange={(e) => setEditingCategoryColor(e.target.value)}
+                      className="h-10 border border-gray-200 rounded-xl"
+                    />
+                    <button
+                      onClick={() => void handleUpdateCategory()}
+                      disabled={saving}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl disabled:opacity-60"
+                    >
+                      <Save className="w-4 h-4" />
+                      Save Category
+                    </button>
+                    <button
+                      onClick={cancelCategoryEdit}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 border border-gray-200 text-gray-700 rounded-xl"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </button>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
 

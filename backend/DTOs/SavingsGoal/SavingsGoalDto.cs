@@ -36,12 +36,27 @@ public class SavingsGoalDto
     public string Priority { get; set; } = "Normal";
 
     /// <summary>
-    /// Percentage of goal completed (0-100).
+    /// Goal status: "Active", "Completed", or "Archived".
     /// </summary>
-    public decimal PercentageComplete => TargetAmount > 0 ? (CurrentAmount / TargetAmount) * 100 : 0;
+    public string Status { get; set; } = "Active";
 
     /// <summary>
-    /// Remaining amount to reach the goal.
+    /// Date the goal was completed (null if not yet completed).
     /// </summary>
-    public decimal Remaining => TargetAmount - CurrentAmount;
+    public DateTime? CompletedDate { get; set; }
+
+    /// <summary>
+    /// Percentage of goal completed (0-100), capped at 100.
+    /// </summary>
+    public decimal PercentageComplete => TargetAmount > 0 ? Math.Min(100, (CurrentAmount / TargetAmount) * 100) : 0;
+
+    /// <summary>
+    /// Remaining amount to reach the goal. Never negative.
+    /// </summary>
+    public decimal Remaining => Math.Max(0, TargetAmount - CurrentAmount);
+
+    /// <summary>
+    /// Whether the goal has been completed.
+    /// </summary>
+    public bool IsCompleted => Status == "Completed";
 }

@@ -24,4 +24,9 @@ public class UpdateSavingsGoalDto
     /// Priority level.
     /// </summary>
     public string? Priority { get; set; }
+
+    /// <summary>
+    /// Goal status: "Active" or "Archived". Use to archive or reopen a goal.
+    /// </summary>
+    public string? Status { get; set; }
 }

@@ -68,6 +68,7 @@ Use this map to jump to the page that matches your role and goal.
 | [Testing](./testing.html) | QA, platform reviewers | Test strategy, coverage, and quality approach |
 | [Technical Specification](./technical-specification.html) | Technical leads | Technology choices, component responsibilities, and risks |
 | [Functional Specification](./functional-specification.html) | Business analysts, QA | Detailed requirements, business rules, and acceptance criteria |
+| [Savings Goals Decision Note](./savings-goals-decision-note.html) | Product, UX, engineering | Lifecycle-based savings goal behavior, completion state, and editability rules |
 | [FAQ](./faq.html) | Everyone | Common questions about setup, status, and next steps |
 
 ## Quick Links
