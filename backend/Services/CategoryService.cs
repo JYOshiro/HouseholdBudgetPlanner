@@ -188,10 +188,42 @@ public class CategoryService : ICategoryService
             if (category.IsSystemDefault)
                 throw new InvalidOperationException("System default categories cannot be deleted.");
 
+            // A category can be linked to many records. We allow deleting setup-only categories
+            // by removing related budgets first, but prevent deleting categories tied to actual
+            // financial history (expenses, income, bills).
+            var hasExpenses = await _context.Expenses
+                .AnyAsync(e => e.HouseholdId == householdId && e.CategoryId == categoryId);
+            var hasIncome = await _context.IncomeEntries
+                .AnyAsync(i => i.HouseholdId == householdId && i.CategoryId == categoryId);
+            var hasBills = await _context.Bills
+                .AnyAsync(b => b.HouseholdId == householdId && b.CategoryId == categoryId);
+
+            if (hasExpenses || hasIncome || hasBills)
+            {
+                throw new InvalidOperationException(
+                    "Category cannot be deleted because it is used by existing transactions or bills. " +
+                    "Move those records to another category first.");
+            }
+
+            var relatedBudgets = await _context.Budgets
+                .Where(b => b.HouseholdId == householdId && b.CategoryId == categoryId)
+                .ToListAsync();
+
+            if (relatedBudgets.Count > 0)
+            {
+                _context.Budgets.RemoveRange(relatedBudgets);
+            }
+
             _context.Categories.Remove(category);
             await _context.SaveChangesAsync();
 
             _logger.LogInformation($"Category deleted: {category.Name}");
+        }
+        catch (DbUpdateException ex)
+        {
+            _logger.LogError(ex, $"Category delete failed due to related data for category {categoryId}");
+            throw new InvalidOperationException(
+                "Category cannot be deleted because it is referenced by existing records.");
         }
         catch (Exception ex)
         {
