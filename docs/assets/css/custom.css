@@ -1,13 +1,37 @@
 :root {
+/* ============================================================
+   HOUSEHOLD BUDGET PLANNER — DOCS DESIGN SYSTEM
+   GitHub Pages / Jekyll (Minima theme)
+   ============================================================ */
+
+/* ---------- Design Tokens ---------- */
+:root {
   --ink: #1f2933;
   --muted: #4f5b66;
   --line: #d6dde3;
   --paper: #f4f7f8;
   --accent: #0f4c5c;
+  --accent-mid: #186070;
   --accent-soft: #e6f1f4;
   --card: #ffffff;
+  --green: #2d9e6e;
+  --green-bg: #e4f3ea;
+  --green-border: #b3dcc7;
+  --amber: #c4870d;
+  --amber-bg: #fff8e6;
+  --amber-border: #f0d080;
+  --slate: #4f5b66;
+  --slate-bg: #f0f2f4;
+  --slate-border: #c8d0d8;
+  --red-bg: #fde8e8;
+  --red: #a02020;
+  --red-border: #e8b0b0;
+  --blue-bg: #e8f2fd;
+  --blue: #1650a0;
+  --blue-border: #b0ccee;
 }
 
+/* ---------- Base ---------- */
 body {
   font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
   color: var(--ink);
@@ -19,9 +43,7 @@ body {
 }
 
 .site-title,
-h1,
-h2,
-h3 {
+h1, h2, h3 {
   font-family: "Source Serif 4", Georgia, serif;
 }
 
@@ -45,6 +67,19 @@ h3 {
   max-width: 980px;
 }
 
+h2 {
+  margin-top: 2.3rem;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #dfe9ed;
+}
+
+h3 {
+  margin-top: 1.6rem;
+  margin-bottom: 0.5rem;
+}
+
+/* ---------- Top Banner ---------- */
 .top-banner {
   display: flex;
   justify-content: space-between;
@@ -77,32 +112,57 @@ h3 {
   background: #eff8fa;
 }
 
+/* ---------- Hero ---------- */
 .hero {
   background: linear-gradient(135deg, #ffffff 0%, #eef6f7 100%);
   border: 1px solid var(--line);
   border-radius: 14px;
-  padding: 26px;
+  padding: 30px 28px 24px;
   margin: 10px 0 24px;
   box-shadow: 0 8px 24px rgba(18, 39, 48, 0.08);
 }
 
 .hero h1 {
   margin: 0 0 10px;
-  font-size: 2.05rem;
+  font-size: 2.15rem;
   line-height: 1.2;
+  color: var(--accent);
 }
 
-.hero p {
-  margin: 0;
+.hero-tagline {
+  margin: 0 0 16px;
   color: var(--muted);
-  font-size: 1.08rem;
+  font-size: 1.1rem;
+  line-height: 1.5;
 }
 
-h2 {
-  margin-top: 2.3rem;
-  margin-bottom: 0.7rem;
-  padding-bottom: 0.25rem;
-  border-bottom: 1px solid #dfe9ed;
+.hero-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.tech-tag {
+  display: inline-block;
+  background: var(--accent-soft);
+  border: 1px solid #b6d4dc;
+  border-radius: 20px;
+  padding: 3px 11px;
+  font-size: 0.83rem;
+  font-weight: 600;
+  color: var(--accent-mid);
+}
+
+/* ---------- Page Intro ---------- */
+.page-intro {
+  margin: 0.35rem 0 1.4rem;
+  color: var(--muted);
+  font-size: 1.03rem;
+  background: #f4f9fb;
+  border: 1px solid #d9e8ee;
+  border-radius: 8px;
+  padding: 11px 14px;
 }
 
 .section-lead {
@@ -110,16 +170,53 @@ h2 {
   margin-top: 0;
 }
 
-.page-intro {
-  margin: 0.35rem 0 1.2rem;
-  color: var(--muted);
-  font-size: 1.03rem;
-  background: #f4f9fb;
-  border: 1px solid #d9e8ee;
-  border-radius: 8px;
-  padding: 10px 12px;
+/* ---------- Status Summary Grid ---------- */
+.status-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 28px;
 }
 
+.status-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 16px;
+  border-top: 3px solid var(--slate-border);
+}
+
+.status-card.status-done   { border-top-color: var(--green); }
+.status-card.status-progress { border-top-color: var(--amber); }
+.status-card.status-planned  { border-top-color: var(--slate-border); }
+
+.status-label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.status-value {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 8px;
+}
+
+.status-done .status-value     { color: var(--green); }
+.status-progress .status-value { color: var(--amber); }
+.status-planned .status-value  { color: var(--slate); }
+
+.status-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+/* ---------- KPI Grid (legacy, kept for compat) ---------- */
 .kpi-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -134,31 +231,45 @@ h2 {
   padding: 14px;
 }
 
-.kpi-card h3 {
-  margin: 0;
-  font-size: 0.95rem;
-  color: var(--accent);
-}
+.kpi-card h3 { margin: 0; font-size: 0.95rem; color: var(--accent); }
+.kpi-card p  { margin: 6px 0 0; color: var(--muted); }
 
-.kpi-card p {
-  margin: 6px 0 0;
-  color: var(--muted);
-}
-
-.callout {
+/* ---------- Callouts ---------- */
+.callout,
+.callout-info {
   background: var(--accent-soft);
   border-left: 4px solid var(--accent);
   border-radius: 8px;
   padding: 14px 16px;
-  margin: 12px 0 20px;
+  margin: 14px 0 22px;
+  font-size: 0.97rem;
 }
 
+.callout-tip {
+  background: var(--green-bg);
+  border-left: 4px solid var(--green);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 14px 0 22px;
+  font-size: 0.97rem;
+}
+
+.callout-warning {
+  background: var(--amber-bg);
+  border-left: 4px solid var(--amber);
+  border-radius: 8px;
+  padding: 14px 16px;
+  margin: 14px 0 22px;
+  font-size: 0.97rem;
+}
+
+/* ---------- Audience + Doc Grids ---------- */
 .audience-grid,
 .doc-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
-  margin: 14px 0 24px;
+  margin: 14px 0 28px;
 }
 
 .audience-card,
@@ -166,7 +277,13 @@ h2 {
   background: #ffffff;
   border: 1px solid var(--line);
   border-radius: 10px;
-  padding: 14px;
+  padding: 16px;
+  transition: box-shadow 0.15s ease;
+}
+
+.audience-card:hover,
+.doc-card:hover {
+  box-shadow: 0 4px 14px rgba(15, 76, 92, 0.10);
 }
 
 .audience-card h3,
@@ -177,10 +294,21 @@ h2 {
   color: #173a45;
 }
 
+.doc-card h3 a {
+  text-decoration: none;
+  color: #173a45;
+}
+
+.doc-card h3 a:hover {
+  color: var(--accent-mid);
+  text-decoration: underline;
+}
+
 .audience-card p,
 .doc-card p {
   margin: 0;
   color: var(--muted);
+  font-size: 0.93rem;
 }
 
 .link-list {
@@ -190,12 +318,199 @@ h2 {
 
 .link-list li {
   margin-bottom: 6px;
+  font-size: 0.95rem;
 }
 
+/* ---------- Feature Grid (2-column) ---------- */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin: 14px 0 24px;
+}
+
+.feature-card {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.feature-card h4 {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+  color: var(--accent);
+  font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
+  font-weight: 700;
+}
+
+.feature-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.93rem;
+}
+
+/* ---------- Tables ---------- */
 table {
   background: #fff;
   border: 1px solid var(--line);
+  font-size: 0.96rem;
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th {
+  background: #f4f9fb;
+  font-weight: 700;
+  color: var(--ink);
+  text-align: left;
+  padding: 8px 12px;
+  border-bottom: 2px solid var(--line);
+}
+
+td {
+  padding: 7px 12px;
+  border-bottom: 1px solid #edf1f3;
+  vertical-align: middle;
+}
+
+tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- HTTP Method Badges ---------- */
+.method {
+  display: inline-block;
+  border-radius: 4px;
+  padding: 2px 8px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  vertical-align: middle;
+}
+
+.method-get    { background: var(--green-bg); color: #1e7a50; border: 1px solid var(--green-border); }
+.method-post   { background: var(--blue-bg);  color: var(--blue);  border: 1px solid var(--blue-border); }
+.method-put    { background: var(--amber-bg); color: #8a4a00; border: 1px solid var(--amber-border); }
+.method-delete { background: var(--red-bg);   color: var(--red);   border: 1px solid var(--red-border); }
+
+/* ---------- Status Badges ---------- */
+.badge {
+  display: inline-block;
+  border-radius: 20px;
+  padding: 2px 10px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.badge-done     { background: var(--green-bg); color: #1e7a50; border: 1px solid var(--green-border); }
+.badge-progress { background: var(--amber-bg); color: #8a4a00; border: 1px solid var(--amber-border); }
+.badge-planned  { background: var(--slate-bg); color: var(--slate); border: 1px solid var(--slate-border); }
+
+/* ---------- Code Blocks ---------- */
+pre {
+  background: #1b2b34;
+  color: #cdd9e1;
+  border-radius: 8px;
+  padding: 16px 18px;
+  overflow-x: auto;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 12px 0 20px;
+}
+
+code {
+  background: #eef3f5;
+  border-radius: 4px;
+  padding: 1px 6px;
+  font-size: 0.9em;
+  color: #0b3d4a;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* ---------- Folder Tree ---------- */
+.folder-tree {
+  background: #1b2b34;
+  color: #cdd9e1;
+  border-radius: 8px;
+  padding: 16px 20px;
+  font-family: "IBM Plex Mono", "Consolas", monospace;
+  font-size: 0.87rem;
+  line-height: 1.75;
+  overflow-x: auto;
+  margin: 14px 0 22px;
+  white-space: pre;
+}
+
+/* ---------- Diagram Placeholder ---------- */
+.diagram-placeholder {
+  background: #f4f9fb;
+  border: 2px dashed #b6d0d8;
+  border-radius: 10px;
+  padding: 36px 20px;
+  text-align: center;
+  color: var(--muted);
+  margin: 18px 0 24px;
   font-size: 0.97rem;
+}
+
+.diagram-placeholder strong {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+/* ---------- Checklist ---------- */
+.checklist {
+  list-style: none;
+  padding-left: 0;
+}
+
+.checklist li {
+  padding: 5px 0 5px 26px;
+  position: relative;
+}
+
+.checklist li::before {
+  content: "☐";
+  position: absolute;
+  left: 0;
+  color: var(--muted);
+}
+
+/* ---------- Mobile Responsive ---------- */
+@media (max-width: 720px) {
+  .kpi-grid,
+  .status-summary-grid,
+  .audience-grid,
+  .doc-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero h1 {
+    font-size: 1.7rem;
+  }
+
+  .top-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
 }
 
 table th {

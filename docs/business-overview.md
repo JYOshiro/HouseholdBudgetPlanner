@@ -1,47 +1,83 @@
 # Business Overview
 
-<p class="page-intro">This page summarizes the business rationale, scope boundaries, and expected outcomes for executive and delivery stakeholders.</p>
+<p class="page-intro">Product goals, target users, problem context, in-scope features, and current delivery status — for stakeholders, assessors, and anyone new to the project.</p>
 
-## Executive Context
-This initiative provides a structured digital operating model for household finance management. The current baseline emphasizes reliability, traceability, and controlled feature expansion rather than broad-scope experimentation.
+## The Problem
 
-## Problem Statement
-Households often manage financial activity across disconnected tools, resulting in inconsistent records, limited monthly visibility, and reduced accountability for shared financial goals.
+Households often track finances across spreadsheets, banking apps, and paper — with no single place to see the whole picture. This makes it hard to:
 
-## Product Objective
-Provide a unified application for household members to:
-- record income and expenses,
-- define monthly budgets,
-- manage bills and payment status,
-- track savings goals and contributions,
-- review period-based dashboard summaries.
+- Know where money actually went each month
+- Set and stick to category-level spending budgets
+- Track recurring bills before they become overdue
+- Make progress toward shared savings goals
 
-## Primary Users
-- Household members responsible for day-to-day transaction entry.
-- Household planners responsible for budgets, bills, and savings targets.
+**Household Budget Planner** solves this by providing a single, shared platform for all household financial activity — accessible to everyone in the household, with a complete history and monthly summaries.
 
-## Functional Scope
-In scope for the current baseline:
-- Authentication and user context.
-- Household-scoped data access.
-- CRUD operations for categories, expenses, income, budgets, bills, savings goals, and goal contributions.
-- Dashboard summary endpoint for period insights.
+## Who Is It For?
 
-Out of scope for the current baseline:
-- Multi-household membership per user.
-- Bank data aggregation integrations.
-- Native mobile clients.
+<div class="feature-grid">
+	<article class="feature-card">
+		<h4>Household finance managers</h4>
+		<p>People responsible for tracking the family budget — income, bills, spending limits, and savings targets. They need a clear monthly overview and control over category budgets.</p>
+	</article>
+	<article class="feature-card">
+		<h4>Household members</h4>
+		<p>Everyone who records transactions and wants visibility into the shared financial picture. They need a simple way to log expenses and see current budget status.</p>
+	</article>
+</div>
 
-## Delivery Status
-- Backend API implementation is operational across core financial domains.
-- Database migrations and startup seeding are in place.
-- Frontend shell is available; full feature-level API integration remains an active delivery track.
+The platform is designed for small households — families, couples, or flatmates — who want shared visibility and straightforward financial governance.
+
+## What It Does
+
+| Feature | Description |
+|---|---|
+| **Authentication** | Secure JWT-based login — each session is tied to a specific household |
+| **Expense tracking** | Record, categorise, and review spending transactions |
+| **Income tracking** | Log all household income entries |
+| **Monthly budgets** | Set per-category spending limits for each calendar month |
+| **Bill management** | Track recurring bills, due dates, and payment status |
+| **Savings goals** | Define savings targets, record contributions, and track progress |
+| **Dashboard** | A period-based summary — income vs. expenses, budget utilisation, bills due, savings progress |
+
+## Scope
+
+**In scope for the current baseline:**
+- User registration and authentication
+- Household-scoped data access (users can only see their own household's data)
+- Full CRUD for: categories, expenses, income, budgets, bills, savings goals, and goal contributions
+- Dashboard summary endpoint with period filtering
+
+**Out of scope:**
+- Multi-household membership per user
+- Bank or card data integrations
+- Native mobile clients
+
+## Current Delivery Status
+
+| Area | Status | Notes |
+|---|---|---|
+| Backend API | <span class="badge badge-done">Implemented</span> | All core modules complete and operational |
+| Database | <span class="badge badge-done">Implemented</span> | Migrations applied, startup seeding in place |
+| Auth module | <span class="badge badge-done">Implemented</span> | Register, login, JWT token issuance |
+| Expenses | <span class="badge badge-done">Implemented</span> | Full CRUD |
+| Income | <span class="badge badge-done">Implemented</span> | Full CRUD |
+| Budgets | <span class="badge badge-done">Implemented</span> | Full CRUD |
+| Bills | <span class="badge badge-done">Implemented</span> | Full CRUD + payment tracking action |
+| Savings Goals | <span class="badge badge-done">Implemented</span> | Full CRUD + contributions |
+| Dashboard | <span class="badge badge-done">Implemented</span> | Period summary endpoint |
+| Frontend | <span class="badge badge-progress">In Progress</span> | Foundation in place; API integration active |
 
 ## Success Indicators
-- Reliable authenticated CRUD operations for all in-scope financial modules.
-- Consistent household data isolation.
-- Reliable monthly summary outputs through dashboard endpoints.
-- Reduced reconciliation effort for household planners.
 
-## Business Outcome Expectation
-Upon full frontend integration, the platform is expected to provide a single, governed workflow for routine household financial decisions, improving planning discipline and reducing operational ambiguity.
+This delivery is considered successful when:
+
+1. All in-scope CRUD operations are functional through the frontend UI
+2. Household data isolation is verified — users cannot access another household's data
+3. The monthly dashboard provides accurate income, expense, and budget summary data
+4. Authentication is secure and consistent — tokens expire, protected routes redirect unauthenticated users
+5. The platform is reliably deployable from a clean repository checkout
+
+## Why This Was Built
+
+This project demonstrates a full-stack web application with genuine business complexity: multi-entity data modelling, household-scoped authorisation, domain-driven API design, and a production-ready security posture. It serves as both a practical household tool and a reference implementation of modern web application development.

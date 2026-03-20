@@ -1,5 +1,5 @@
 <div class="top-banner">
-	<span><strong>Household Budget Planner</strong> Documentation</span>
+	<span><strong>Household Budget Planner</strong> — Documentation</span>
 	<span class="banner-links">
 		<a href="https://github.com/JYOshiro/HouseholdBudgetPlanner" target="_blank" rel="noopener">View Repository</a>
 		<a href="https://jyoshiro.github.io/HouseholdBudgetPlanner/" target="_blank" rel="noopener">Project Site</a>
@@ -7,82 +7,47 @@
 </div>
 
 <section class="hero">
-	<h1>Household Budget Planner Documentation</h1>
-	<p>Household Budget Planner is a shared-finance platform that enables households to manage income, expenses, budgets, bills, and savings goals through a unified operating model and API foundation.</p>
+	<h1>Household Budget Planner</h1>
+	<p class="hero-tagline">A shared household finance platform — track income, expenses, budgets, bills, and savings goals, all in one place.</p>
+	<div class="hero-tags">
+		<span class="tech-tag">ASP.NET Core 9</span>
+		<span class="tech-tag">React 18 + TypeScript</span>
+		<span class="tech-tag">PostgreSQL</span>
+		<span class="tech-tag">JWT Auth</span>
+		<span class="tech-tag">Vite + Tailwind</span>
+	</div>
 </section>
 
-<div class="kpi-grid">
-	<article class="kpi-card">
-		<h3>Core Business Scope</h3>
-		<p>End-to-end household finance operations across planning, tracking, and review.</p>
+<div class="status-summary-grid">
+	<article class="status-card status-done">
+		<div class="status-label">Backend API</div>
+		<div class="status-value">Implemented</div>
+		<p>All core modules operational — auth, expenses, income, budgets, bills, savings goals, and dashboard.</p>
 	</article>
-	<article class="kpi-card">
-		<h3>Architecture Model</h3>
-		<p>Frontend client plus layered ASP.NET Core API with PostgreSQL as system of record.</p>
+	<article class="status-card status-progress">
+		<div class="status-label">Frontend</div>
+		<div class="status-value">In Progress</div>
+		<p>Project foundation in place. Feature-level API integration is the current delivery track.</p>
 	</article>
-	<article class="kpi-card">
-		<h3>Documentation Focus</h3>
-		<p>Executive clarity, implementation traceability, and release readiness.</p>
+	<article class="status-card status-done">
+		<div class="status-label">Database</div>
+		<div class="status-value">Migrated</div>
+		<p>PostgreSQL schema deployed. Migrations and startup category seeding are operational.</p>
 	</article>
 </div>
 
-## Executive Summary
+## What Is This?
 
-This documentation set establishes a single source of truth for business stakeholders, delivery teams, and technical assessors. It outlines the product's business rationale, architecture decisions, delivery status, and release considerations in a format suitable for governance reviews and implementation handoff.
+Household Budget Planner is a web application for shared household finance management. Household members can record and review all financial activity — income, spending, recurring bills, monthly budgets, and savings goals — through a single authenticated interface.
 
-## Product Summary
+All financial data is scoped per household, providing clear data isolation between separate households. The backend API is fully implemented. The frontend is in active development.
 
-<p class="section-lead">The platform is designed for controlled household finance operations with clear technical ownership boundaries.</p>
-
-The solution is designed around household-scoped financial management:
-
-- Users authenticate and operate inside a single household context.
-- Financial records are separated by domain modules (expenses, income, budgets, bills, goals).
-- Dashboard reporting provides period-based summaries for financial oversight.
-- A layered backend architecture keeps controllers, business logic, and data access distinct.
-
-## Business Value
-
-<p class="section-lead">The expected organizational benefit is improved financial visibility and stronger execution discipline.</p>
-
-- Improves household planning discipline through centralized budget and category controls.
-- Strengthens monthly visibility through consistent transaction and billing workflows.
-- Reduces delivery risk through modular API domains and clear ownership boundaries.
-- Provides a stable baseline for analytics expansion, automation, and production hardening.
-
-## High-Level Architecture
-
-<p class="section-lead">The architecture emphasizes modularity, traceability, and predictable service behavior.</p>
-
-1. Frontend client sends authenticated requests to backend API routes.
-2. Controllers validate request context and delegate to domain services.
-3. Services enforce household isolation and business rules.
-4. Entity Framework persists and retrieves domain entities in PostgreSQL.
-5. Dashboard endpoints aggregate data for monthly operational review.
-
-See [Architecture](./architecture.html) and [Security and Privacy](./security-privacy.html) for implementation detail.
-
-<div class="callout">
-This documentation is maintained as a formal baseline for executive communication, delivery alignment, and technical assurance.
-</div>
-
-## Environment Reference
-
-| Item | Value |
-|---|---|
-| Frontend URL (development) | http://localhost:5173 |
-| Backend API (development) | http://localhost:5000/api |
-| Swagger UI (development) | http://localhost:5000/swagger |
-| Database | PostgreSQL |
-| Auth Model | JWT Bearer token |
-| Backend Framework | ASP.NET Core (.NET 8 target) |
-
-## Audience Paths
+## Where to Start
 
 <div class="audience-grid">
 	<article class="audience-card">
-		<h3>Stakeholders</h3>
-		<p>Business context, delivery direction, and decision support.</p>
+		<h3>Stakeholders &amp; Assessors</h3>
+		<p>Understand the product scope, delivery status, and what has been built.</p>
 		<ul class="link-list">
 			<li><a href="./business-overview.html">Business Overview</a></li>
 			<li><a href="./roadmap.html">Roadmap</a></li>
@@ -90,58 +55,82 @@ This documentation is maintained as a formal baseline for executive communicatio
 		</ul>
 	</article>
 	<article class="audience-card">
-		<h3>Technical Assessors</h3>
-		<p>Architecture controls, security posture, and quality approach.</p>
-		<ul class="link-list">
-			<li><a href="./architecture.html">Architecture</a></li>
-			<li><a href="./security-privacy.html">Security and Privacy</a></li>
-			<li><a href="./testing.html">Testing</a></li>
-		</ul>
-	</article>
-	<article class="audience-card">
 		<h3>Developers</h3>
-		<p>Implementation onboarding and integration guidance.</p>
+		<p>Set up the project, explore the API, and understand the codebase.</p>
 		<ul class="link-list">
 			<li><a href="./getting-started.html">Getting Started</a></li>
 			<li><a href="./api-reference.html">API Reference</a></li>
 			<li><a href="./frontend-guide.html">Frontend Guide</a></li>
-			<li><a href="./deployment.html">Deployment</a></li>
+		</ul>
+	</article>
+	<article class="audience-card">
+		<h3>Technical Reviewers</h3>
+		<p>Review architecture decisions, security approach, and quality posture.</p>
+		<ul class="link-list">
+			<li><a href="./architecture.html">Architecture</a></li>
+			<li><a href="./security-privacy.html">Security &amp; Privacy</a></li>
+			<li><a href="./testing.html">Testing</a></li>
 		</ul>
 	</article>
 </div>
 
-## Quick Links
+## Documentation
 
 <div class="doc-grid">
 	<article class="doc-card">
-		<h3><a href="./functional-specification.html">Functional Specification</a></h3>
-		<p>Detailed requirements, in-scope features, journeys, and acceptance criteria.</p>
+		<h3><a href="./business-overview.html">Business Overview</a></h3>
+		<p>Product goals, target users, in-scope features, and current delivery status.</p>
 	</article>
 	<article class="doc-card">
-		<h3><a href="./technical-specification.html">Technical Specification</a></h3>
-		<p>System architecture, stack baseline, security model, and runtime constraints.</p>
+		<h3><a href="./getting-started.html">Getting Started</a></h3>
+		<p>Set up the project locally — prerequisites, configuration, and first run.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./architecture.html">Architecture</a></h3>
+		<p>System structure, component roles, design decisions, and data model.</p>
 	</article>
 	<article class="doc-card">
 		<h3><a href="./api-reference.html">API Reference</a></h3>
-		<p>Controller-level endpoint catalog to support integration and verification.</p>
+		<p>All implemented endpoints grouped by module, with auth and usage notes.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./frontend-guide.html">Frontend Guide</a></h3>
+		<p>Frontend structure, integration approach, token handling, and known gaps.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./deployment.html">Deployment</a></h3>
+		<p>Configuration, environment variables, deployment steps, and release checklist.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./roadmap.html">Roadmap</a></h3>
+		<p>What is implemented, what is in progress, and what is planned next.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./security-privacy.html">Security &amp; Privacy</a></h3>
+		<p>Authentication controls, authorization model, and data isolation approach.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./testing.html">Testing</a></h3>
+		<p>Current test posture and recommended quality gates.</p>
 	</article>
 </div>
 
-## Documentation Map
+## Quick Reference
 
-| Document | Purpose |
+| Item | Value |
 |---|---|
-| [Business Overview](./business-overview.html) | Scope, users, business goals, and delivery status |
-| [Getting Started](./getting-started.html) | Local setup and first run instructions |
-| [Architecture](./architecture.html) | System components, data flow, and technical model |
-| [Security and Privacy](./security-privacy.html) | Authentication, authorization, and data isolation controls |
-| [API Reference](./api-reference.html) | Implemented endpoint surface and module routes |
-| [Frontend Guide](./frontend-guide.html) | Frontend status, structure, and integration guidance |
-| [Testing](./testing.html) | Current test posture and recommended quality gates |
-| [Deployment](./deployment.html) | Runtime configuration and release considerations |
-| [Roadmap](./roadmap.html) | Delivery priorities and near-term milestones |
-| [FAQ](./faq.html) | Common implementation and operations questions |
-| [Functional Specification](./functional-specification.html) | Detailed functional requirements and user journeys |
-| [Technical Specification](./technical-specification.html) | Detailed technical baseline and architecture constraints |
+| Frontend (dev) | `http://localhost:5173` |
+| Backend API (dev) | `http://localhost:5000/api` |
+| Swagger UI (dev) | `http://localhost:5000/swagger` |
+| Database | PostgreSQL |
+| Auth model | JWT Bearer token |
+| Backend | ASP.NET Core 9.0 |
+| Frontend | React 18 + TypeScript + Vite |
 
-Last updated: March 2026
+<div class="callout">
+<strong>Current status:</strong> The backend API is fully implemented and operational across all financial modules. Frontend integration is in active development. See the <a href="./roadmap.html">Roadmap</a> for current priorities and progress.
+</div>
+
+---
+
+*Documentation last updated: March 2026*
