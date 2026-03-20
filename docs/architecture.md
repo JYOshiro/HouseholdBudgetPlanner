@@ -2,6 +2,15 @@
 
 <p class="page-intro">System structure, component responsibilities, key design decisions, and data model — the main technical reference for understanding how the platform is built and why.</p>
 
+**Quick links:**
+- [System Overview](#system-overview)
+- [Backend Layer Structure](#backend-layer-structure)
+- [Why This Architecture?](#why-this-architecture)
+- [Domain Modules](#domain-modules)
+- [Data Model](#data-model)
+- [Request Lifecycle](#request-lifecycle)
+- [Security Architecture](#security-architecture)
+
 ## System Overview
 
 The platform is split into two independently deployable components that communicate over HTTP:
@@ -72,7 +81,7 @@ The service layer is the single enforcement point for household isolation and bu
 Requests and responses go through DTOs, never raw entities. This prevents accidental data leakage (e.g. password hashes in responses) and decouples the API contract from the database schema.
 
 **AutoMapper**
-Keeps controller code clean — entity-to-DTO mapping is declarative and centralised in `MappingProfile.cs`.
+Keeps controller code clean — entity-to-DTO mapping is declarative and centralized in `MappingProfile.cs`.
 
 **JWT with household claim**
 Embedding `householdId` in the token means every request carries its own household context. Services trust this claim rather than accepting `householdId` from request bodies, which prevents cross-household access.
@@ -103,7 +112,7 @@ Nine entities make up the core data model:
 	</article>
 	<article class="feature-card">
 		<h4>Household</h4>
-		<p>The organisational unit. All financial data is scoped to a Household. Created automatically at registration.</p>
+		<p>The organizational unit. All financial data is scoped to a Household. Created automatically at registration.</p>
 	</article>
 	<article class="feature-card">
 		<h4>Category</h4>

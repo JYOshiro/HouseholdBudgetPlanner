@@ -42,6 +42,11 @@ Household Budget Planner is a web application for shared household finance manag
 
 All financial data is scoped per household, providing clear data isolation between separate households. The backend API is fully implemented. The frontend is in active development.
 
+**At a glance:**
+- Built for shared household budgeting and financial tracking
+- Backend API is implemented and available for integration
+- Frontend feature integration is currently in progress
+
 ## Where to Start
 
 <div class="audience-grid">
@@ -128,7 +133,7 @@ All financial data is scoped per household, providing clear data isolation betwe
 | Frontend | React 18 + TypeScript + Vite |
 
 <div class="callout">
-<strong>Current status:</strong> The backend API is fully implemented and operational across all financial modules. Frontend integration is in active development. See the <a href="./roadmap.html">Roadmap</a> for current priorities and progress.
+<strong>Current status:</strong> Backend modules are implemented and operational. Frontend integration is in progress. See the <a href="./roadmap.html">Roadmap</a> for active priorities.
 </div>
 
 ---

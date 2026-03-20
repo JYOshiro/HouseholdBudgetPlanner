@@ -2,6 +2,13 @@
 
 <p class="page-intro">Configuration requirements, environment setup, step-by-step deployment guidance, and a pre-release checklist for the backend, frontend, and database.</p>
 
+**Quick links:**
+- [Runtime Model](#runtime-model)
+- [Configuration](#configuration)
+- [Deploying the Backend](#deploying-the-backend)
+- [Deploying the Frontend](#deploying-the-frontend)
+- [Pre-Release Checklist](#pre-release-checklist)
+
 ## Runtime Model
 
 The platform has three independently deployable components:
@@ -45,7 +52,7 @@ Set this in `frontend/.env.production` or as an environment variable in your bui
 
 ### 1. Set environment variables
 
-Configure all required variables in your hosting environment before deployment.
+Configure required variables in your hosting environment before deployment.
 
 ### 2. Apply database migrations
 
@@ -92,7 +99,7 @@ npm install
 npm run build
 ```
 
-Output is in `frontend/dist/`. Upload this folder to your static host.
+Build output is in `frontend/dist/`. Upload this folder to your static host.
 
 ### 3. SPA routing
 

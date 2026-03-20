@@ -2,6 +2,16 @@
 
 <p class="page-intro">Get the project running locally in around 15 minutes. This guide covers prerequisites, backend setup, database migration, and frontend startup.</p>
 
+**Quick links:**
+- [Prerequisites](#prerequisites)
+- [Step 1 — Clone the Repository](#step-1--clone-the-repository)
+- [Step 2 — Configure the Backend](#step-2--configure-the-backend)
+- [Step 3 — Apply Database Migrations](#step-3--apply-database-migrations)
+- [Step 4 — Start the Backend API](#step-4--start-the-backend-api)
+- [Step 5 — Start the Frontend](#step-5--start-the-frontend)
+- [Step 6 — Verify the Setup](#step-6--verify-the-setup)
+- [Troubleshooting](#troubleshooting)
+
 ## Prerequisites
 
 | Requirement | Minimum Version | Notes |
@@ -74,7 +84,7 @@ Vite will report the local URL — typically `http://localhost:5173`.
 
 ## Step 6 — Verify the Setup
 
-Use Swagger to confirm everything is working before touching the frontend:
+Use Swagger to confirm everything is working before continuing frontend work:
 
 1. Open `http://localhost:5000/swagger`
 2. `POST /api/auth/register` — create a test user account

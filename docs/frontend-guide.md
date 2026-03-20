@@ -2,6 +2,15 @@
 
 <p class="page-intro">Frontend stack, current delivery status, intended architecture, folder structure, auth/token handling, backend integration approach, and current gaps — for developers working on the frontend.</p>
 
+**Quick links:**
+- [Current Status](#current-status)
+- [Technology Stack](#technology-stack)
+- [Intended Architecture](#intended-architecture)
+- [Authentication and Token Handling](#authentication-and-token-handling)
+- [Routing](#routing)
+- [Integration Backlog](#integration-backlog)
+- [Developer Notes](#developer-notes)
+
 ## Current Status
 
 <div class="status-summary-grid">
@@ -78,7 +87,7 @@ The frontend uses a **feature-based folder structure**. Each financial domain ha
 │       └── formatDate.ts          # Consistent date formatting
 │
 └── types/
-		└── global.d.ts</div>
+    └── global.d.ts</div>
 
 ## Authentication and Token Handling
 

@@ -1,6 +1,6 @@
 # Roadmap
 
-<p class="page-intro">What has been implemented, what is currently in progress, and what is planned next — organised by phase.</p>
+<p class="page-intro">What is implemented, what is in progress, and what is planned next — organized by phase.</p>
 
 ## Phase Summary
 
@@ -88,7 +88,7 @@
 
 ## Long-Term Direction
 
-These are directional goals beyond Phase 3 — not committed deliverables:
+These are directional goals beyond Phase 3, not committed deliverables:
 
 - Integration with external financial data providers (open banking / CSV import)
 - Mobile-first client — after web feature parity is complete

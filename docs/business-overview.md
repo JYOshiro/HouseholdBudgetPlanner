@@ -13,6 +13,11 @@ Households often track finances across spreadsheets, banking apps, and paper —
 
 **Household Budget Planner** solves this by providing a single, shared platform for all household financial activity — accessible to everyone in the household, with a complete history and monthly summaries.
 
+**At a glance:**
+- One shared source of truth for household finances
+- Clear monthly visibility for spending, income, and bills
+- Structured progress tracking for savings goals
+
 ## Who Is It For?
 
 <div class="feature-grid">
@@ -33,7 +38,7 @@ The platform is designed for small households — families, couples, or flatmate
 | Feature | Description |
 |---|---|
 | **Authentication** | Secure JWT-based login — each session is tied to a specific household |
-| **Expense tracking** | Record, categorise, and review spending transactions |
+| **Expense tracking** | Record, categorize, and review spending transactions |
 | **Income tracking** | Log all household income entries |
 | **Monthly budgets** | Set per-category spending limits for each calendar month |
 | **Bill management** | Track recurring bills, due dates, and payment status |
@@ -80,4 +85,4 @@ This delivery is considered successful when:
 
 ## Why This Was Built
 
-This project demonstrates a full-stack web application with genuine business complexity: multi-entity data modelling, household-scoped authorisation, domain-driven API design, and a production-ready security posture. It serves as both a practical household tool and a reference implementation of modern web application development.
+This project demonstrates a full-stack application with real business complexity: multi-entity data modeling, household-scoped authorization, domain-driven API design, and a production-ready security posture. It serves as both a practical household tool and a reference implementation of modern web application delivery.

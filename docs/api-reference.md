@@ -2,6 +2,21 @@
 
 <p class="page-intro">All implemented backend endpoints — grouped by module, with authentication details, descriptions, and common response codes. Use Swagger in development for full request/response schema inspection.</p>
 
+**Quick links:**
+- [Authentication](#authentication)
+- [Common Status Codes](#common-status-codes)
+- [Endpoint Summary](#endpoint-summary)
+- [Auth](#auth)
+- [Households](#households)
+- [Categories](#categories)
+- [Expenses](#expenses)
+- [Income](#income)
+- [Budgets](#budgets)
+- [Bills](#bills)
+- [Savings Goals](#savings-goals)
+- [Goal Contributions](#goal-contributions)
+- [Dashboard](#dashboard)
+
 ## Base URL
 
 | Environment | URL |
@@ -11,7 +26,7 @@
 
 ## Authentication
 
-All endpoints except `/api/auth/register` and `/api/auth/login` require a `Bearer` token in the `Authorization` header:
+All endpoints except `/api/auth/register` and `/api/auth/login` require a Bearer token in the `Authorization` header:
 
 ```
 Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
