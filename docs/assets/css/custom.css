@@ -530,8 +530,7 @@ a:hover {
 }
 
 .site-footer {
-  border-top: 1px solid var(--line);
-  color: var(--muted);
+  display: none;
 }
 
 @media (max-width: 860px) {
