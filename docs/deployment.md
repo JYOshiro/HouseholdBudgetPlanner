@@ -1,5 +1,7 @@
 # Deployment
 
+<p class="page-intro">This page captures runtime configuration needs and release controls for production readiness.</p>
+
 ## Deployment Posture
 The platform is currently positioned for controlled release and environment hardening, with clear separation between frontend distribution, API hosting, and persistent data services.
 

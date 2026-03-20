@@ -1,5 +1,7 @@
 # Architecture
 
+<p class="page-intro">This page describes the system structure, domain boundaries, and core control points that govern implementation and operations.</p>
+
 ## Architecture Intent
 The architecture is designed to balance delivery speed with operational control. It prioritizes clear module boundaries, predictable data ownership, and straightforward maintainability.
 

@@ -32,6 +32,8 @@ This documentation set establishes a single source of truth for business stakeho
 
 ## Product Summary
 
+<p class="section-lead">The platform is designed for controlled household finance operations with clear technical ownership boundaries.</p>
+
 The solution is designed around household-scoped financial management:
 
 - Users authenticate and operate inside a single household context.
@@ -41,12 +43,16 @@ The solution is designed around household-scoped financial management:
 
 ## Business Value
 
+<p class="section-lead">The expected organizational benefit is improved financial visibility and stronger execution discipline.</p>
+
 - Improves household planning discipline through centralized budget and category controls.
 - Strengthens monthly visibility through consistent transaction and billing workflows.
 - Reduces delivery risk through modular API domains and clear ownership boundaries.
 - Provides a stable baseline for analytics expansion, automation, and production hardening.
 
 ## High-Level Architecture
+
+<p class="section-lead">The architecture emphasizes modularity, traceability, and predictable service behavior.</p>
 
 1. Frontend client sends authenticated requests to backend API routes.
 2. Controllers validate request context and delegate to domain services.
@@ -73,9 +79,53 @@ This documentation is maintained as a formal baseline for executive communicatio
 
 ## Audience Paths
 
-- Product and non-technical stakeholders: [Business Overview](./business-overview.html), [Roadmap](./roadmap.html), [FAQ](./faq.html)
-- Technical assessors: [Architecture](./architecture.html), [Security and Privacy](./security-privacy.html), [Testing](./testing.html)
-- Developers: [Getting Started](./getting-started.html), [API Reference](./api-reference.html), [Frontend Guide](./frontend-guide.html), [Deployment](./deployment.html)
+<div class="audience-grid">
+	<article class="audience-card">
+		<h3>Stakeholders</h3>
+		<p>Business context, delivery direction, and decision support.</p>
+		<ul class="link-list">
+			<li><a href="./business-overview.html">Business Overview</a></li>
+			<li><a href="./roadmap.html">Roadmap</a></li>
+			<li><a href="./faq.html">FAQ</a></li>
+		</ul>
+	</article>
+	<article class="audience-card">
+		<h3>Technical Assessors</h3>
+		<p>Architecture controls, security posture, and quality approach.</p>
+		<ul class="link-list">
+			<li><a href="./architecture.html">Architecture</a></li>
+			<li><a href="./security-privacy.html">Security and Privacy</a></li>
+			<li><a href="./testing.html">Testing</a></li>
+		</ul>
+	</article>
+	<article class="audience-card">
+		<h3>Developers</h3>
+		<p>Implementation onboarding and integration guidance.</p>
+		<ul class="link-list">
+			<li><a href="./getting-started.html">Getting Started</a></li>
+			<li><a href="./api-reference.html">API Reference</a></li>
+			<li><a href="./frontend-guide.html">Frontend Guide</a></li>
+			<li><a href="./deployment.html">Deployment</a></li>
+		</ul>
+	</article>
+</div>
+
+## Quick Links
+
+<div class="doc-grid">
+	<article class="doc-card">
+		<h3><a href="./functional-specification.html">Functional Specification</a></h3>
+		<p>Detailed requirements, in-scope features, journeys, and acceptance criteria.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./technical-specification.html">Technical Specification</a></h3>
+		<p>System architecture, stack baseline, security model, and runtime constraints.</p>
+	</article>
+	<article class="doc-card">
+		<h3><a href="./api-reference.html">API Reference</a></h3>
+		<p>Controller-level endpoint catalog to support integration and verification.</p>
+	</article>
+</div>
 
 ## Documentation Map
 

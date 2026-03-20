@@ -11,6 +11,7 @@
 body {
   font-family: "IBM Plex Sans", "Segoe UI", Arial, sans-serif;
   color: var(--ink);
+  line-height: 1.68;
   background:
     radial-gradient(circle at 10% 0%, #edf7fa 0%, transparent 35%),
     radial-gradient(circle at 100% 20%, #f2f8ef 0%, transparent 30%),
@@ -33,14 +34,15 @@ h3 {
 .site-nav .page-link {
   color: var(--ink);
   font-weight: 600;
+  margin-left: 14px;
 }
 
 .page-content {
-  padding: 28px 0 44px;
+  padding: 30px 0 52px;
 }
 
 .wrapper {
-  max-width: 1040px;
+  max-width: 980px;
 }
 
 .top-banner {
@@ -48,7 +50,7 @@ h3 {
   justify-content: space-between;
   align-items: center;
   gap: 12px;
-  background: #ffffff;
+  background: linear-gradient(90deg, #ffffff 0%, #f5fbfd 100%);
   border: 1px solid var(--line);
   border-radius: 10px;
   padding: 10px 14px;
@@ -64,6 +66,15 @@ h3 {
 
 .banner-links a {
   font-weight: 600;
+  text-decoration: none;
+  padding: 4px 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+}
+
+.banner-links a:hover {
+  border-color: #b9d3dc;
+  background: #eff8fa;
 }
 
 .hero {
@@ -77,12 +88,36 @@ h3 {
 
 .hero h1 {
   margin: 0 0 10px;
+  font-size: 2.05rem;
+  line-height: 1.2;
 }
 
 .hero p {
   margin: 0;
   color: var(--muted);
-  font-size: 1.06rem;
+  font-size: 1.08rem;
+}
+
+h2 {
+  margin-top: 2.3rem;
+  margin-bottom: 0.7rem;
+  padding-bottom: 0.25rem;
+  border-bottom: 1px solid #dfe9ed;
+}
+
+.section-lead {
+  color: var(--muted);
+  margin-top: 0;
+}
+
+.page-intro {
+  margin: 0.35rem 0 1.2rem;
+  color: var(--muted);
+  font-size: 1.03rem;
+  background: #f4f9fb;
+  border: 1px solid #d9e8ee;
+  border-radius: 8px;
+  padding: 10px 12px;
 }
 
 .kpi-grid {
@@ -118,14 +153,58 @@ h3 {
   margin: 12px 0 20px;
 }
 
+.audience-grid,
+.doc-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 14px 0 24px;
+}
+
+.audience-card,
+.doc-card {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.audience-card h3,
+.doc-card h3 {
+  margin-top: 0;
+  margin-bottom: 8px;
+  font-size: 1rem;
+  color: #173a45;
+}
+
+.audience-card p,
+.doc-card p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.link-list {
+  margin-top: 10px;
+  padding-left: 18px;
+}
+
+.link-list li {
+  margin-bottom: 6px;
+}
+
 table {
   background: #fff;
   border: 1px solid var(--line);
+  font-size: 0.97rem;
 }
 
 table th {
   background: #f2f7f9;
   color: #14333d;
+}
+
+table tr:nth-child(even) {
+  background: #fafcfd;
 }
 
 a {
@@ -153,6 +232,11 @@ a:hover {
   }
 
   .kpi-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .audience-grid,
+  .doc-grid {
     grid-template-columns: 1fr;
   }
 

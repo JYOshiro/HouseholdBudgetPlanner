@@ -1,5 +1,7 @@
 # Getting Started
 
+<p class="page-intro">This page provides the standard local setup path for first-time contributors and reviewers.</p>
+
 ## Prerequisites
 - .NET 8 SDK
 - Node.js and npm

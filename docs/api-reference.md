@@ -1,5 +1,7 @@
 # API Reference
 
+<p class="page-intro">This page provides a controller-level endpoint catalog for integration planning, validation, and test execution.</p>
+
 ## Purpose
 This section documents the implemented backend endpoint surface at the controller level to support integration and test planning.
 

@@ -1,5 +1,7 @@
 # Testing
 
+<p class="page-intro">This page defines the current testing posture and the recommended quality gates for controlled release.</p>
+
 ## Current Posture
 - Manual verification is available through Swagger and local frontend execution.
 - Automated test coverage is limited in the current baseline.

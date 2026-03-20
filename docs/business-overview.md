@@ -1,5 +1,7 @@
 # Business Overview
 
+<p class="page-intro">This page summarizes the business rationale, scope boundaries, and expected outcomes for executive and delivery stakeholders.</p>
+
 ## Executive Context
 This initiative provides a structured digital operating model for household finance management. The current baseline emphasizes reliability, traceability, and controlled feature expansion rather than broad-scope experimentation.
 

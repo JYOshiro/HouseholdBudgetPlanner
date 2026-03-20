@@ -1,5 +1,7 @@
 # Security and Privacy
 
+<p class="page-intro">This page outlines the current protection model for authentication, data isolation, and operational security controls.</p>
+
 ## Security Objectives
 - Ensure authenticated access to protected financial resources.
 - Enforce household-level data boundaries.

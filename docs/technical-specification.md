@@ -1,5 +1,7 @@
 # Technical Specification
 
+<p class="page-intro">This page documents the technical baseline, architecture constraints, and operational considerations for delivery teams.</p>
+
 ## 1. Solution Overview
 The Household Budget Planner App uses a split architecture:
 - Frontend: Vite + React + TypeScript single-page application.

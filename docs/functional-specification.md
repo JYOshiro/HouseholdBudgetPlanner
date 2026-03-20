@@ -1,5 +1,7 @@
 # Functional Specification
 
+<p class="page-intro">This page defines functional scope, requirements, business rules, and acceptance criteria for implementation governance.</p>
+
 ## 1. Objective
 Provide households with a centralized platform to track income, expenses, budgets, bills, and savings goals while maintaining clear household-level access controls and usable financial summaries.
 

@@ -1,5 +1,7 @@
 # Roadmap
 
+<p class="page-intro">This page presents delivery priorities by horizon to support planning, governance, and sequencing decisions.</p>
+
 ## Delivery Principle
 Priorities are sequenced to complete functional integration first, establish quality gates second, and expand strategic capabilities third.
 

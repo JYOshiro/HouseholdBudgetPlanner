@@ -1,5 +1,7 @@
 # Frontend Guide
 
+<p class="page-intro">This page summarizes frontend delivery status, integration priorities, and implementation guidance for engineering teams.</p>
+
 ## Current State
 The frontend foundation is present with routing, UI assets, and development tooling. Full API-backed feature parity is still in progress for several screens.
 

@@ -1,5 +1,7 @@
 # FAQ
 
+<p class="page-intro">This page answers common implementation and operations questions for quick stakeholder reference.</p>
+
 ## Is the backend already implemented?
 Yes. Core financial modules, authentication, and dashboard endpoints are implemented in the current baseline.
 
