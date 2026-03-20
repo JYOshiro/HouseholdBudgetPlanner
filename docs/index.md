@@ -19,12 +19,13 @@ Find what you need based on your role:
 | Review system design | [Architecture](./architecture.html) |
 | Check what's done and what's next | [Roadmap](./roadmap.html) |
 | Review security controls | [Security and Privacy](./security-privacy.html) |
+| Review product and UX decisions | [Improvements & Updates](./improvements-updates/index.html) |
 
 ## Current Status
 
 Backend API and database are complete. Frontend feature integration is in progress. Production hardening is planned. See the [Roadmap](./roadmap.html) for the full timeline and priorities.
 
-Savings goals are now documented as lifecycle-based and editable, with distinct completed-state behavior. See the [Savings Goals Decision Note](./savings-goals-decision-note.html) for product rules and UX requirements.
+Savings goals are now documented as lifecycle-based and editable, with distinct completed-state behavior. See [Improvements & Updates](./improvements-updates/index.html) for product decision notes.
 
 | Component | Status |
 |---|---|
@@ -70,7 +71,7 @@ Use this map to jump to the page that matches your role and goal.
 | [Testing](./testing.html) | QA, platform reviewers | Test strategy, coverage, and quality approach |
 | [Technical Specification](./technical-specification.html) | Technical leads | Technology choices, component responsibilities, and risks |
 | [Functional Specification](./functional-specification.html) | Business analysts, QA | Detailed requirements, business rules, and acceptance criteria |
-| [Savings Goals Decision Note](./savings-goals-decision-note.html) | Product, UX, engineering | Lifecycle-based savings goal behavior, completion state, and editability rules |
+| [Improvements & Updates](./improvements-updates/index.html) | Product, UX, engineering | Product and UX decision notes covering behavior changes, new rules, and implementation decisions |
 | [FAQ](./faq.html) | Everyone | Common questions about setup, status, and next steps |
 
 ## Quick Links

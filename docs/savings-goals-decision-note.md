@@ -399,6 +399,7 @@ This approach creates a more realistic, maintainable, and user-friendly savings 
 
 ## Related Pages
 
+- [Improvements & Updates](./improvements-updates/index.html)
 - [Business Overview](./business-overview.html)
 - [Architecture](./architecture.html)
 - [Frontend Guide](./frontend-guide.html)
